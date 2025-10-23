@@ -10,24 +10,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 	<style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-body { 
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #0891b2 100%);
-    color: white;
-    min-height: 100vh;
-    padding: 20px;
-    transition: background 0.5s ease;
-}
-
-/* Tema CADET (Gris suau) */
-body.theme-cadet { 
-    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
-}
-
-/* Tema JUVENIL (Azul suau) */
-body.theme-juvenil { 
-    background: linear-gradient(135deg, #1e3a5a 0%, #1e4a7a 50%, #0891b2 100%);
-}
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #0891b2 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
         .container { max-width: 1400px; margin: 0 auto; }
         .header { text-align: center; margin-bottom: 30px; }
         .header h1 { font-size: 32px; margin-bottom: 10px; }
@@ -721,41 +710,39 @@ body.theme-juvenil {
             gap: 20px;
             margin-bottom: 20px;
         ">
-         <button onclick="selectTeam('cadet')" style="
-    padding: 30px 20px;
-    background: linear-gradient(135deg, #64748b, #475569);
-    border: 3px solid #fb923c;
-    border-radius: 12px;
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 4px 20px rgba(251, 146, 60, 0.3);
-" onmouseover="this.style.background='linear-gradient(135deg, #475569, #334155)'; this.style.transform='translateY(-3px) scale(1.05)'; this.style.boxShadow='0 8px 30px rgba(251, 146, 60, 0.5)'" 
-   onmouseout="this.style.background='linear-gradient(135deg, #64748b, #475569)'; this.style.transform='none'; this.style.boxShadow='0 4px 20px rgba(251, 146, 60, 0.3)'">
-    <div style="font-size: 48px; margin-bottom: 10px;">🏊‍♂️</div>
-    CADET
-    <div style="font-size: 12px; color: #fed7aa; margin-top: 8px; font-weight: 600;">Temporada 25-26</div>
-</button>
+            <button onclick="selectTeam('cadet')" style="
+                padding: 30px 20px;
+                background: rgba(34, 197, 94, 0.2);
+                border: 3px solid #22c55e;
+                border-radius: 12px;
+                color: white;
+                font-size: 20px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.3s;
+            " onmouseover="this.style.background='rgba(34, 197, 94, 0.4)'" 
+               onmouseout="this.style.background='rgba(34, 197, 94, 0.2)'">
+                <div style="font-size: 48px; margin-bottom: 10px;">🏊‍♂️</div>
+                CADET
+                <div style="font-size: 12px; color: #bae6fd; margin-top: 8px;">25-26</div>
+            </button>
             
             <button onclick="selectTeam('juvenil')" style="
-    padding: 30px 20px;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    border: 3px solid #60a5fa;
-    border-radius: 12px;
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.5);
-" onmouseover="this.style.background='linear-gradient(135deg, #2563eb, #1d4ed8)'; this.style.transform='translateY(-3px) scale(1.05)'; this.style.boxShadow='0 8px 30px rgba(59, 130, 246, 0.7)'" 
-   onmouseout="this.style.background='linear-gradient(135deg, #3b82f6, #2563eb)'; this.style.transform='none'; this.style.boxShadow='0 4px 20px rgba(59, 130, 246, 0.5)'">
-    <div style="font-size: 48px; margin-bottom: 10px;">🏊‍♂️</div>
-    JUVENIL
-    <div style="font-size: 12px; color: #dbeafe; margin-top: 8px; font-weight: 600;">Temporada 25-26</div>
-</button>
+                padding: 30px 20px;
+                background: rgba(59, 130, 246, 0.2);
+                border: 3px solid #3b82f6;
+                border-radius: 12px;
+                color: white;
+                font-size: 20px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.3s;
+            " onmouseover="this.style.background='rgba(59, 130, 246, 0.4)'" 
+               onmouseout="this.style.background='rgba(59, 130, 246, 0.2)'">
+                <div style="font-size: 48px; margin-bottom: 10px;">🏊‍♂️</div>
+                JUVENIL
+                <div style="font-size: 12px; color: #bae6fd; margin-top: 8px;">25-26</div>
+            </button>
         </div>
         
         <p style="font-size: 11px; color: #94a3b8; margin-top: 20px;">
@@ -770,7 +757,6 @@ body.theme-juvenil {
         </div>
         <h1 id="mainTitle">📊 Estadísticas CN Terrassa</h1>
         <p id="mainSubtitle">Selecciona un equip...</p>
-		<p id="coachName" style="font-size: 16px; color: #fde047; margin-top: 8px; font-weight: 600;"></p>
         <button onclick="changeTeam()" class="btn" style="background: #8b5cf6; padding: 8px 16px; font-size: 14px; margin-top: 10px;">
             🔄 Canviar Equip
         </button>
@@ -934,8 +920,8 @@ body.theme-juvenil {
         <canvas id="performanceVsTimeChart" style="max-height: 400px;"></canvas>
     </div>
 
-   <!-- 9. Análisis de Fatiga -->
-    <!-- <div class="card">
+    <!-- 9. Análisis de Fatiga -->
+    <div class="card">
         <h2 class="section-title">😓 Análisis de Fatiga</h2>
         <p style="font-size: 12px; color: #bae6fd; margin-bottom: 15px;">
             Comparación de rendimiento: Primer cuarto vs Último cuarto
@@ -943,7 +929,7 @@ body.theme-juvenil {
         <div style="overflow-x: auto;">
             <table class="comparison-table" id="fatigueAnalysisTable"></table>
         </div>
-    </div> -->
+    </div>
 
     <!-- 10. Promedio de Rotación -->
     <div class="card">
@@ -3079,15 +3065,6 @@ function displayComparison() {
 
     const comparisonTable = document.querySelector('#comparisonView');
     const tableCard = comparisonTable.querySelector('.card:has(#comparisonTable)');
-    
-    // ✅ ELIMINAR TOTS ELS MVP CONTAINERS ANTICS
-    document.querySelectorAll('.card').forEach(card => {
-        const title = card.querySelector('h2.section-title');
-        if (title && title.textContent.includes('MVP de la Temporada')) {
-            card.remove();
-        }
-    });
-    
     if (tableCard) {
         tableCard.parentNode.insertBefore(mvpContainer, tableCard);
     }
@@ -5083,27 +5060,18 @@ function populatePlayerTimeFilter() {
         .sort((a, b) => a.num - b.num);
     
     select.innerHTML = '<option value="">Todos los jugadores</option>' +
-    players.map(p => `<option value="${p.num}|${p.name}">${p.num}. ${p.name}</option>`).join('');
+        players.map(p => `<option value="${p.name}">${p.num}. ${p.name}</option>`).join('');
 }
 
 function filterByPlayerTime() {
-    const playerValue = document.getElementById('filterPlayerTime').value;
+    const playerName = document.getElementById('filterPlayerTime').value;
     
-    if (!playerValue) {
+    if (!playerName) {
         document.getElementById('playerTimeStatsCard').classList.add('hidden');
         return;
     }
     
-    // Parsejar el valor: "numero|nom"
-    const [numero, ...nameParts] = playerValue.split('|');
-    const nom = nameParts.join('|'); // Per si el nom conté "|"
-    
-    const player = {
-        numero: parseInt(numero),
-        nom: nom
-    };
-    
-    const playerTimeData = calculatePlayerTimeData(player);
+    const playerTimeData = calculatePlayerTimeData(playerName);
     displayPlayerTimeStats(playerTimeData);
 }
 
@@ -6698,35 +6666,7 @@ function renderQuarterAnalysisTable() {
 function renderPerformanceVsTimeChart() {
     const ctx = document.getElementById('performanceVsTimeChart');
     if (!ctx) return;
-    console.log('🎯 renderPerformanceVsTimeChart called');
-    console.log('matchesWithTime length:', matchesWithTime.length);
-	 // ⚠️ MISSATGE SI HI HA POCS PARTITS
-    if (matchesWithTime.length < 3) {
-        const canvas = ctx;
-        const context = canvas.getContext('2d');
-        
-        // Obtenir dimensions del canvas
-        const width = canvas.width;
-        const height = canvas.height;
-        
-        // Netejar canvas
-        context.clearRect(0, 0, width, height);
-        
-        // Configurar text
-        context.fillStyle = '#bae6fd';
-        context.font = '16px Arial';
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
-        
-        // Missatge principal
-        context.fillText('⚠️ Necessites almenys 3 partits amb dades de temps', width / 2, height / 2 - 20);
-        context.fillStyle = '#94a3b8';
-        context.font = '14px Arial';
-        context.fillText(`Partits disponibles: ${matchesWithTime.length} / 3`, width / 2, height / 2 + 10);
-        context.fillText('Aquesta gràfica mostrarà la correlació quan tinguis més dades', width / 2, height / 2 + 35);
-        
-        return;
-    }
+    
     if (window.performanceVsTimeChartInstance) {
         window.performanceVsTimeChartInstance.destroy();
     }
@@ -8164,15 +8104,9 @@ function selectTeam(team) {
     localStorage.setItem('selectedTeam', team);
     document.getElementById('teamSelectionModal').style.display = 'none';
     
-    // ✅ APLICAR TEMA VISUAL SEGONS L'EQUIP
-    document.body.className = team === 'cadet' ? 'theme-cadet' : 'theme-juvenil';
-    
     // ✅ ACTUALITZAR TÍTOL I SUBTÍTOL
     const teamName = team === 'cadet' ? 'CADET' : 'JUVENIL';
-    const emoji = team === 'cadet' ? '⬛' : '🟦';
-    const coach = team === 'cadet' ? 'Didac Cobacho' : 'Jordi Busquets';
-    document.getElementById('mainTitle').innerHTML = `${emoji} 📊 Estadísticas CN Terrassa - ${teamName} ${emoji}`;
-    document.getElementById('coachName').innerHTML = `👨‍🏫 Entrenador: ${coach}`;
+    document.getElementById('mainTitle').innerHTML = `📊 Estadísticas CN Terrassa - ${teamName}`;
     //document.getElementById('mainSubtitle').innerHTML = `Temporada 25/26 • ${allMatches.length} partits`;
     
     // Carregar dades
@@ -8189,15 +8123,9 @@ window.addEventListener('DOMContentLoaded', () => {
     if (selectedTeam) {
         document.getElementById('teamSelectionModal').style.display = 'none';
         
-        // ✅ APLICAR TEMA VISUAL SEGONS L'EQUIP
-        document.body.className = selectedTeam === 'cadet' ? 'theme-cadet' : 'theme-juvenil';
-        
         // ✅ ACTUALITZAR TÍTOL I SUBTÍTOL
         const teamName = selectedTeam === 'cadet' ? 'CADET' : 'JUVENIL';
-        const emoji = selectedTeam === 'cadet' ? '⬛' : '🟦';
-        const coach = selectedTeam === 'cadet' ? 'Dídac Cobacho' : 'Jordi Busquets';
-        document.getElementById('mainTitle').innerHTML = `${emoji} 📊 Estadísticas CN Terrassa - ${teamName} ${emoji}`;
-        document.getElementById('coachName').innerHTML = `👨‍🏫 Entrenador: ${coach}`;
+        document.getElementById('mainTitle').innerHTML = `📊 Estadísticas CN Terrassa - ${teamName}`;
         document.getElementById('mainSubtitle').innerHTML = `Temporada 25/26`;
         
         loadAllMatches(selectedTeam);
@@ -8206,13 +8134,13 @@ window.addEventListener('DOMContentLoaded', () => {
    </script>
    <script>
     // 🔒 Bloqueo de clic derecho y atajos
-   /* document.addEventListener("contextmenu", event => event.preventDefault());
+    document.addEventListener("contextmenu", event => event.preventDefault());
     document.addEventListener("keydown", event => {
       if ((event.ctrlKey && ["s", "u"].includes(event.key.toLowerCase())) ||
           event.key === "F12") {
         event.preventDefault();
       }
-    });*/
+    });
     </script>
 </body>
 </html>

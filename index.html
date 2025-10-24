@@ -3204,7 +3204,7 @@ function displayComparison() {
             gols: p.gols,
             goalTypes: p.goalTypes,
             assistencies: p.assistencies,
-			infraccions2m: stats.infraccions2m || 0,
+			infraccions2m: p.infraccions2m || 0,
             robatoris: p.robatoris,
             blocatges: p.blocks || 0,
             parades: p.parades,
@@ -4237,7 +4237,7 @@ function renderPerformanceTable() {
     if (!table) return;
     
     if (allMatches.length === 0) return;
-    
+    console.log('🎯 renderPerformanceTable - allMatches:', allMatches.length);
     const playerPerformance = {};
     
     allMatches.forEach(match => {
@@ -4253,10 +4253,13 @@ function renderPerformanceTable() {
             }
             
             // Analizar cuarto por cuarto
-            ['q1', 'q2', 'q3', 'q4'].forEach(q => {
-                const isInLineup = match.lineups[q] && match.lineups[q].includes(player.numero);
-                const quarterGoalsFor = match.periodScores[q].cnt;
-                const quarterGoalsAgainst = match.periodScores[q].rival;
+['q1', 'q2', 'q3', 'q4'].forEach(q => {
+    // Validar que periodScores existeix i té les dades del quart
+    if (!match.periodScores || !match.periodScores[q]) return;
+    
+    const isInLineup = match.lineups[q] && match.lineups[q].includes(player.numero);
+    const quarterGoalsFor = match.periodScores[q].cnt || 0;
+    const quarterGoalsAgainst = match.periodScores[q].rival || 0;
                 
                 if (isInLineup) {
                     // Es titular en este cuarto - contamos goles del EQUIPO
@@ -4272,7 +4275,8 @@ function renderPerformanceTable() {
             });
         });
     });
-    
+    console.log('🎯 playerPerformance object:', playerPerformance);
+console.log('🎯 players array length:', Object.keys(playerPerformance).length);
     const players = Object.values(playerPerformance)
         .filter(p => p.titular.quarters > 0 || p.suplente.quarters > 0)
         .sort((a, b) => {
@@ -4280,7 +4284,8 @@ function renderPerformanceTable() {
             const avgB = b.titular.quarters > 0 ? (b.titular.teamGoalsFor / b.titular.quarters) : 0;
             return avgB - avgA;
         });
-    
+   console.log('🎯 Filtered players:', players.length);
+console.log('🎯 First player example:', players[0]); 
     table.innerHTML = `
         <thead>
             <tr>
@@ -9785,13 +9790,13 @@ function parseSpanishDate(dateStr) {
    </script>
    <script>
     // 🔒 Bloqueo de clic derecho y atajos
-  /*  document.addEventListener("contextmenu", event => event.preventDefault());
+    document.addEventListener("contextmenu", event => event.preventDefault());
     document.addEventListener("keydown", event => {
       if ((event.ctrlKey && ["s", "u"].includes(event.key.toLowerCase())) ||
           event.key === "F12") {
         event.preventDefault();
       }
-    });*/
+    });
     </script>
 </body>
 </html>

@@ -8572,7 +8572,7 @@ function calculatePlayerFullStats(player) {
         totalSteals: 0,
         totalLosses: 0,
         totalSaves: 0,
-        mvpCount: 0,
+        mvpCount: 0,  // ← Comptarem aquí
         matchDetails: [],
         goalsByType: {},
         goalsByZone: {},
@@ -8594,24 +8594,49 @@ function calculatePlayerFullStats(player) {
         
         const stats = matchPlayer.estadistiques || {};
         
-        // ✅ CALCULAR TEMPS UTILITZANT LA FUNCIÓ CENTRALITZADA
+        // ✅ CALCULAR MVP: qui té la millor valoració del partit?
+        const playersWithValue = match.jugadors.map(j => {
+            const valor = calculatePlayerValue({
+                gols: j.estadistiques.gols,
+                goalTypes: j.estadistiques.goalTypes,
+                assistencies: j.estadistiques.assistencies,
+                robatoris: j.estadistiques.robatoris,
+                blocatges: j.estadistiques.blocks || 0,
+                parades: j.estadistiques.parades,
+                faltesRebudes: j.estadistiques.faltesRebudes || 0,
+                exclusions: j.estadistiques.exclusions,
+                exclusionTypes: j.estadistiques.exclusionTypes || { normal: 0, penalty: 0 },
+                penaltyMissed: j.estadistiques.penaltyMissed,
+                perdues: j.estadistiques.perdues,
+                xutsFallats: j.estadistiques.xutsFallats,
+                golsRebuts: j.estadistiques.golsRebuts || 0
+            });
+            return { numero: j.numero, nom: j.nom.trim(), valor };
+        }).sort((a, b) => b.valor - a.valor);
+        
+        const mvp = playersWithValue[0];
+        
+        // ✅ Comprovar si aquest jugador és l'MVP del partit
+        if (mvp && mvp.numero === player.num && mvp.nom === player.name) {
+            data.mvpCount++;
+        }
+        
+        // Calcular minuts
         let minutes = 0;
         let minutesByQ = { q1: 0, q2: 0, q3: 0, q4: 0 };
         
         if (match.playerWaterChanges && match.playerWaterChanges.length > 0 && match.quarterStartTimes) {
-            // Utilitzar la funció que ja existeix per calcular temps
             const playerTimes = calculateMatchPlayingTimes(match);
             const playerTimeData = playerTimes[player.num];
             
             if (playerTimeData) {
-                minutes = Math.round(playerTimeData.totalTime / 60); // convertir segons a minuts
+                minutes = Math.round(playerTimeData.totalTime / 60);
                 minutesByQ.q1 = playerTimeData.q1;
                 minutesByQ.q2 = playerTimeData.q2;
                 minutesByQ.q3 = playerTimeData.q3;
                 minutesByQ.q4 = playerTimeData.q4;
             }
         } else {
-            // Fallback: utilitzar temps del jugador si existeix
             minutes = matchPlayer.temps || 0;
         }
         
@@ -8622,9 +8647,6 @@ function calculatePlayerFullStats(player) {
         data.totalSteals += stats.robatoris || 0;
         data.totalLosses += stats.perdues || 0;
         data.totalSaves += stats.parades || 0;
-        
-        // MVP?
-        if (matchPlayer.esMVP) data.mvpCount++;
         
         // Goals by type
         if (stats.goalTypes) {
@@ -8668,14 +8690,16 @@ function calculatePlayerFullStats(player) {
         }
         
         // Evolution (per gràfic temporal)
-data.evolution.push({
-    date: match.data || match.rival || `Partit ${data.totalMatches}`,
-    rival: match.rivalTeam || match.rival,
-    goals: stats.gols || 0,
-    minutes: minutes
-});
+        data.evolution.push({
+            date: match.data || match.rival || `Partit ${data.totalMatches}`,
+            rival: match.rivalTeam || match.rival,
+            goals: stats.gols || 0,
+            minutes: minutes
+        });
         
         // Match details (per taula)
+        const isMVP = mvp && mvp.numero === player.num && mvp.nom === player.name;
+        
         data.matchDetails.push({
             date: match.data || '',
             rival: match.rivalTeam || match.rival || 'Desconocido',
@@ -8685,7 +8709,7 @@ data.evolution.push({
             assists: stats.assistencies || 0,
             exclusions: stats.exclusions || 0,
             steals: stats.robatoris || 0,
-            mvp: matchPlayer.esMVP ? '⭐' : ''
+            mvp: isMVP ? '⭐' : ''  // ← Aquí es marca l'MVP
         });
     });
     

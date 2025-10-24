@@ -545,6 +545,83 @@ body.theme-juvenil {
     color: white;
     font-size: 14px;
 }
+/* Estilos para pestanya Individual */
+.player-header {
+    text-align: center;
+    padding: 20px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.player-header h3 {
+    font-size: 28px;
+    color: #22d3ee;
+    margin-bottom: 10px;
+}
+
+.player-header .player-number-big {
+    display: inline-block;
+    background: #06b6d4;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    line-height: 60px;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#comparePlayersCheckboxes label {
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#comparePlayersCheckboxes label:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+#comparePlayersCheckboxes input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.zone-heatmap-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.zone-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.zone-cell .zone-label {
+    font-size: 10px;
+    margin-bottom: 5px;
+    opacity: 0.8;
+}
+
+.zone-cell .zone-count {
+    font-size: 24px;
+}
 .timeline {
     display: flex;
     flex-direction: column;
@@ -781,6 +858,7 @@ body.theme-juvenil {
             <button class="tab" onclick="showTab('comparison')">📊 Comparación</button>
             <button class="tab" onclick="showTab('titular')">👥 Titularidad</button>
 			<button class="tab" onclick="showTab('tiempo')">⏱️ Tiempo de Juego</button>
+			<button class="tab" onclick="showTab('individual')">👤 Individual</button>
         </div>
         </div>
 
@@ -949,6 +1027,81 @@ body.theme-juvenil {
     <div class="card">
         <h2 class="section-title">🔄 Estadísticas de Rotación</h2>
         <div class="info-grid" id="rotationStatsGrid"></div>
+    </div>
+</div>
+<!-- TAB: INDIVIDUAL -->
+<div id="individualTab" class="hidden">
+    <!-- Selector de jugador -->
+    <div class="card">
+        <h2 class="section-title">👤 Selecciona un Jugador</h2>
+        <select class="filter-input" id="playerSelector" onchange="showPlayerStats()" style="font-size: 16px; padding: 12px;">
+            <option value="">-- Selecciona un jugador --</option>
+        </select>
+    </div>
+
+    <!-- Contingut de les estadístiques (es mostra quan se selecciona un jugador) -->
+    <div id="playerStatsContent" class="hidden">
+        
+        <!-- 1. Resum Global -->
+        <div class="card">
+            <h2 class="section-title">📊 Resum Global</h2>
+            <div class="player-header" id="playerHeader"></div>
+            <div class="stats-grid" id="playerSummaryGrid"></div>
+        </div>
+
+        <!-- 2. Gràfic d'Evolució Temporal -->
+        <div class="card">
+            <h2 class="section-title">📈 Evolució al Llarg de la Temporada</h2>
+            <canvas id="playerEvolutionChart"></canvas>
+        </div>
+
+        <!-- 3. Mapa de Zones de Gol -->
+        <div class="card">
+            <h2 class="section-title">🎯 Mapa de Calor - Zones de Gol</h2>
+            <div id="playerGoalZonesHeatmap"></div>
+        </div>
+
+        <!-- 4. Comparativa amb la Mitjana de l'Equip -->
+        <div class="card">
+            <h2 class="section-title">⚖️ Comparativa: Jugador vs Mitjana Equip</h2>
+            <canvas id="playerVsTeamChart"></canvas>
+        </div>
+
+        <!-- 5. Comparativa Multi-Jugador -->
+        <div class="card">
+            <h2 class="section-title">👥 Comparar amb Altres Jugadors</h2>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold;">Selecciona jugadors per comparar (fins a 4):</label>
+                <div id="comparePlayersCheckboxes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;"></div>
+            </div>
+            <button class="btn" onclick="compareSelectedPlayers()" style="background: #8b5cf6; margin-bottom: 20px;">
+                🔄 Comparar Jugadors
+            </button>
+            <div id="multiPlayerComparisonContent" class="hidden">
+                <canvas id="multiPlayerComparisonChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 6. Estadístiques per Tipus de Partit -->
+        <div class="card">
+            <h2 class="section-title">🏠 Rendiment: Casa vs Fora</h2>
+            <canvas id="homeAwayChart"></canvas>
+        </div>
+
+        <!-- 7. Eficiència per Quarter -->
+        <div class="card">
+            <h2 class="section-title">⏱️ Rendiment per Quarter</h2>
+            <canvas id="quarterPerformanceChart"></canvas>
+        </div>
+
+        <!-- 8. Històric Detallat de Partits -->
+        <div class="card">
+            <h2 class="section-title">📋 Històric de Tots els Partits</h2>
+            <div style="overflow-x: auto;">
+                <table class="comparison-table" id="playerMatchHistoryTable"></table>
+            </div>
+        </div>
+
     </div>
 </div>
          
@@ -1386,6 +1539,7 @@ body.theme-juvenil {
         displayMatchesList();
         displayComparison();
         displayTitularStats();
+		initializePlayerSelector();
 		document.getElementById('mainSubtitle').innerHTML = `Temporada 25/26 • ${allMatches.length} partits`;
     } catch (error) {
         console.error('Error detallado:', error);
@@ -1534,27 +1688,33 @@ function getQuarterEndTime(match, quarter, quarterStartTime, quarterDuration) {
     document.getElementById('comparisonTab').classList.add('hidden');
     document.getElementById('titularTab').classList.add('hidden');
     document.getElementById('tiempoTab').classList.add('hidden');
+	document.getElementById('individualTab').classList.add('hidden');
     
     // Ocultar también las vistas internas del listTab
     document.getElementById('matchesView').classList.add('hidden');
     document.getElementById('singleMatchView').classList.add('hidden');
 
     if (tabName === 'list') {
-        document.getElementById('listTab').classList.remove('hidden');
-        document.getElementById('matchesView').classList.remove('hidden');
-    } else if (tabName === 'comparison') {
-        document.getElementById('comparisonTab').classList.remove('hidden');
-    } else if (tabName === 'titular') {
-        document.getElementById('titularTab').classList.remove('hidden');
-        setTimeout(() => {
-            renderTitularityHeatmapChart();
-        }, 100);
-    } else if (tabName === 'tiempo') {
-        document.getElementById('tiempoTab').classList.remove('hidden');
-        setTimeout(() => {
-            displayTimeStats();
-        }, 100);
-    }
+    document.getElementById('listTab').classList.remove('hidden');
+    document.getElementById('matchesView').classList.remove('hidden');
+} else if (tabName === 'comparison') {
+    document.getElementById('comparisonTab').classList.remove('hidden');
+} else if (tabName === 'titular') {
+    document.getElementById('titularTab').classList.remove('hidden');
+    setTimeout(() => {
+        renderTitularityHeatmapChart();
+    }, 100);
+} else if (tabName === 'tiempo') {
+    document.getElementById('tiempoTab').classList.remove('hidden');
+    setTimeout(() => {
+        displayTimeStats();
+    }, 100);
+} else if (tabName === 'individual') {
+    document.getElementById('individualTab').classList.remove('hidden');
+    setTimeout(() => {
+        initializePlayerSelector();
+    }, 100);
+}
 }
 
  function displayMatchData() {
@@ -8311,6 +8471,736 @@ window.addEventListener('DOMContentLoaded', () => {
         loadAllMatches(selectedTeam);
     }
 });
+// ============================================
+// FUNCIONS PER ESTADÍSTIQUES INDIVIDUALS
+// ============================================
+
+let selectedPlayer = null;
+let allPlayersData = {};
+
+// Inicialitzar selector de jugadors
+function initializePlayerSelector() {
+    const select = document.getElementById('playerSelector');
+    const playerSet = new Set();
+    
+    allMatches.forEach(match => {
+        if (match.jugadors) {
+            match.jugadors.forEach(j => {
+                if (j.numero) {
+                    playerSet.add(JSON.stringify({ 
+                        num: j.numero, 
+                        name: j.nom.trim() 
+                    }));
+                }
+            });
+        }
+    });
+    
+    const players = Array.from(playerSet)
+        .map(p => JSON.parse(p))
+        .sort((a, b) => a.num - b.num);
+    
+    select.innerHTML = '<option value="">-- Selecciona un jugador --</option>' +
+        players.map(p => `<option value="${p.num}|${p.name}">${p.num}. ${p.name}</option>`).join('');
+}
+
+// Mostrar estadístiques del jugador seleccionat
+function showPlayerStats() {
+    const select = document.getElementById('playerSelector');
+    const value = select.value;
+    
+    if (!value) {
+        document.getElementById('playerStatsContent').classList.add('hidden');
+        return;
+    }
+    
+    const [num, name] = value.split('|');
+    selectedPlayer = { num: parseInt(num), name: name };
+    
+    // Calcular totes les dades del jugador
+    const playerData = calculatePlayerFullStats(selectedPlayer);
+    
+    // Renderitzar totes les seccions
+    renderPlayerHeader(playerData);
+    renderPlayerSummary(playerData);
+    renderPlayerEvolutionChart(playerData);
+    renderPlayerGoalZones(playerData);
+    renderPlayerVsTeamChart(playerData);
+    renderHomeAwayChart(playerData);
+    renderQuarterPerformanceChart(playerData);
+    renderPlayerMatchHistory(playerData);
+    initializeComparePlayersCheckboxes(selectedPlayer);
+    
+    document.getElementById('playerStatsContent').classList.remove('hidden');
+}
+
+// Calcular estadístiques completes del jugador
+function calculatePlayerFullStats(player) {
+    const data = {
+        num: player.num,
+        name: player.name,
+        totalMatches: 0,
+        totalMinutes: 0,
+        totalGoals: 0,
+        totalAssists: 0,
+        totalExclusions: 0,
+        totalSteals: 0,
+        totalLosses: 0,
+        totalSaves: 0,
+        mvpCount: 0,
+        matchDetails: [],
+        goalsByType: {},
+        goalsByZone: {},
+        goalsByQuarter: { q1: 0, q2: 0, q3: 0, q4: 0 },
+        minutesByQuarter: { q1: 0, q2: 0, q3: 0, q4: 0 },
+        homeStats: { matches: 0, goals: 0, minutes: 0 },
+        awayStats: { matches: 0, goals: 0, minutes: 0 },
+        evolution: []
+    };
+    
+    allMatches.forEach(match => {
+        const matchPlayer = match.jugadors?.find(j => 
+            j.numero === player.num && j.nom.trim() === player.name
+        );
+        
+        if (!matchPlayer) return;
+        
+        data.totalMatches++;
+        
+        const stats = matchPlayer.estadistiques || {};
+        
+        // ✅ CALCULAR TEMPS UTILITZANT LA FUNCIÓ CENTRALITZADA
+        let minutes = 0;
+        let minutesByQ = { q1: 0, q2: 0, q3: 0, q4: 0 };
+        
+        if (match.playerWaterChanges && match.playerWaterChanges.length > 0 && match.quarterStartTimes) {
+            // Utilitzar la funció que ja existeix per calcular temps
+            const playerTimes = calculateMatchPlayingTimes(match);
+            const playerTimeData = playerTimes[player.num];
+            
+            if (playerTimeData) {
+                minutes = Math.round(playerTimeData.totalTime / 60); // convertir segons a minuts
+                minutesByQ.q1 = playerTimeData.q1;
+                minutesByQ.q2 = playerTimeData.q2;
+                minutesByQ.q3 = playerTimeData.q3;
+                minutesByQ.q4 = playerTimeData.q4;
+            }
+        } else {
+            // Fallback: utilitzar temps del jugador si existeix
+            minutes = matchPlayer.temps || 0;
+        }
+        
+        data.totalMinutes += minutes;
+        data.totalGoals += stats.gols || 0;
+        data.totalAssists += stats.assistencies || 0;
+        data.totalExclusions += stats.exclusions || 0;
+        data.totalSteals += stats.robatoris || 0;
+        data.totalLosses += stats.perdues || 0;
+        data.totalSaves += stats.parades || 0;
+        
+        // MVP?
+        if (matchPlayer.esMVP) data.mvpCount++;
+        
+        // Goals by type
+        if (stats.goalTypes) {
+            Object.keys(stats.goalTypes).forEach(type => {
+                data.goalsByType[type] = (data.goalsByType[type] || 0) + (stats.goalTypes[type] || 0);
+            });
+        }
+        
+        // Goals by zone
+        if (stats.goalZones) {
+            Object.keys(stats.goalZones).forEach(zone => {
+                data.goalsByZone[zone] = (data.goalsByZone[zone] || 0) + (stats.goalZones[zone] || 0);
+            });
+        }
+        
+        // Goals by quarter
+        if (match.chronologicalActions) {
+            match.chronologicalActions
+                .filter(a => a.type === 'goal' && a.playerNum === player.num)
+                .forEach(a => {
+                    if (a.quarter) data.goalsByQuarter[a.quarter]++;
+                });
+        }
+        
+        // Minutes by quarter (en segons)
+        data.minutesByQuarter.q1 += minutesByQ.q1;
+        data.minutesByQuarter.q2 += minutesByQ.q2;
+        data.minutesByQuarter.q3 += minutesByQ.q3;
+        data.minutesByQuarter.q4 += minutesByQ.q4;
+        
+        // Home vs Away
+        const isHome = match.matchLocation === 'casa';
+        if (isHome) {
+            data.homeStats.matches++;
+            data.homeStats.goals += stats.gols || 0;
+            data.homeStats.minutes += minutes;
+        } else {
+            data.awayStats.matches++;
+            data.awayStats.goals += stats.gols || 0;
+            data.awayStats.minutes += minutes;
+        }
+        
+        // Evolution (per gràfic temporal)
+data.evolution.push({
+    date: match.data || match.rival || `Partit ${data.totalMatches}`,
+    rival: match.rivalTeam || match.rival,
+    goals: stats.gols || 0,
+    minutes: minutes
+});
+        
+        // Match details (per taula)
+        data.matchDetails.push({
+            date: match.data || '',
+            rival: match.rivalTeam || match.rival || 'Desconocido',
+            location: match.matchLocation === 'casa' ? '🏠' : '✈️',
+            minutes: minutes,
+            goals: stats.gols || 0,
+            assists: stats.assistencies || 0,
+            exclusions: stats.exclusions || 0,
+            steals: stats.robatoris || 0,
+            mvp: matchPlayer.esMVP ? '⭐' : ''
+        });
+    });
+    
+    // Ordenar evolució per data
+    data.evolution.sort((a, b) => {
+        const dateA = parseSpanishDate(a.date);
+        const dateB = parseSpanishDate(b.date);
+        return dateA - dateB;
+    });
+    
+    return data;
+}
+// Funció auxiliar per formatar segons a format mm:ss
+function formatTimeFromSeconds(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+// Renderitzar capçalera del jugador
+function renderPlayerHeader(data) {
+    const header = document.getElementById('playerHeader');
+    header.innerHTML = `
+        <div class="player-number-big">${data.num}</div>
+        <h3>${data.name}</h3>
+        <p style="font-size: 16px; color: #bae6fd; margin-top: 10px;">
+            ${data.totalMatches} partits jugats | ${data.totalMinutes} minuts totals
+        </p>
+    `;
+}
+
+// Renderitzar resum estadístic
+function renderPlayerSummary(data) {
+    const grid = document.getElementById('playerSummaryGrid');
+    
+    const avgGoals = (data.totalGoals / data.totalMatches).toFixed(2);
+    const avgMinutes = (data.totalMinutes / data.totalMatches).toFixed(1);
+    const avgAssists = (data.totalAssists / data.totalMatches).toFixed(2);
+    const avgExclusions = (data.totalExclusions / data.totalMatches).toFixed(2);
+    
+    grid.innerHTML = `
+        <div class="stat-card">
+            <div class="stat-value">${data.totalGoals}</div>
+            <div class="stat-label">Gols Totals</div>
+            <div class="stat-sublabel">${avgGoals} per partit</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${data.totalMinutes}'</div>
+            <div class="stat-label">Minuts Totals</div>
+            <div class="stat-sublabel">${avgMinutes}' per partit</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${avgGoals}</div>
+            <div class="stat-label">Mitjana Gols</div>
+            <div class="stat-sublabel">per partit</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${data.totalAssists}</div>
+            <div class="stat-label">Assistències</div>
+            <div class="stat-sublabel">${avgAssists} per partit</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${data.totalExclusions}</div>
+            <div class="stat-label">Exclusions</div>
+            <div class="stat-sublabel">${avgExclusions} per partit</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${data.totalSteals}</div>
+            <div class="stat-label">Robatoris</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${data.mvpCount}</div>
+            <div class="stat-label">MVP</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${data.totalSaves}</div>
+            <div class="stat-label">Parades</div>
+        </div>
+    `;
+}
+
+// Gràfic d'evolució temporal
+function renderPlayerEvolutionChart(data) {
+    const ctx = document.getElementById('playerEvolutionChart');
+    
+    if (window.playerEvolutionChartInstance) {
+        window.playerEvolutionChartInstance.destroy();
+    }
+    
+    window.playerEvolutionChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.evolution.map(e => e.date),
+            datasets: [
+                {
+                    label: 'Gols',
+                    data: data.evolution.map(e => e.goals),
+                    borderColor: '#22d3ee',
+                    backgroundColor: 'rgba(34, 211, 238, 0.1)',
+                    tension: 0.3,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Minuts',
+                    data: data.evolution.map(e => e.minutes),
+                    borderColor: '#fbbf24',
+                    backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                    tension: 0.3,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { labels: { color: 'white' } },
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            return data.evolution[context[0].dataIndex].rival;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                y: {
+                    type: 'linear',
+                    position: 'left',
+                    title: { display: true, text: 'Gols', color: 'white' },
+                    ticks: { color: 'white' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                y1: {
+                    type: 'linear',
+                    position: 'right',
+                    title: { display: true, text: 'Minuts', color: 'white' },
+                    ticks: { color: 'white' },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+// Mapa de zones de gol
+function renderPlayerGoalZones(data) {
+    const container = document.getElementById('playerGoalZonesHeatmap');
+    
+    const zones = [
+        ['top-left', 'top-center', 'top-right'],
+        ['mid-left', 'mid-center', 'mid-right'],
+        ['bottom-left', 'bottom-center', 'bottom-right']
+    ];
+    
+    const zoneLabels = {
+        'top-left': 'Superior Esq.',
+        'top-center': 'Superior Centre',
+        'top-right': 'Superior Dret',
+        'mid-left': 'Mig Esq.',
+        'mid-center': 'Mig Centre',
+        'mid-right': 'Mig Dret',
+        'bottom-left': 'Inferior Esq.',
+        'bottom-center': 'Inferior Centre',
+        'bottom-right': 'Inferior Dret'
+    };
+    
+    const maxGoals = Math.max(...Object.values(data.goalsByZone), 1);
+    
+    let html = '<div class="zone-heatmap-container">';
+    
+    zones.forEach(row => {
+        row.forEach(zone => {
+            const count = data.goalsByZone[zone] || 0;
+            const intensity = count / maxGoals;
+            const bgColor = `rgba(34, 197, 94, ${intensity})`;
+            
+            html += `
+                <div class="zone-cell" style="background: ${bgColor};">
+                    <div class="zone-label">${zoneLabels[zone]}</div>
+                    <div class="zone-count">${count}</div>
+                </div>
+            `;
+        });
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+// Comparativa jugador vs mitjana equip
+function renderPlayerVsTeamChart(data) {
+    const ctx = document.getElementById('playerVsTeamChart');
+    
+    // Calcular mitjanes de l'equip
+    const teamAvg = calculateTeamAverages();
+    
+    const playerAvg = {
+        goalsPerMatch: data.totalGoals / data.totalMatches,
+        assistsPerMatch: data.totalAssists / data.totalMatches,
+        exclusionsPerMatch: data.totalExclusions / data.totalMatches,
+        minutesPerMatch: data.totalMinutes / data.totalMatches
+    };
+    
+    if (window.playerVsTeamChartInstance) {
+        window.playerVsTeamChartInstance.destroy();
+    }
+    
+    window.playerVsTeamChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Gols/Partit', 'Assist./Partit', 'Excl./Partit', 'Min/Partit'],
+            datasets: [
+                {
+                    label: data.name,
+                    data: [
+                        playerAvg.goalsPerMatch,
+                        playerAvg.assistsPerMatch,
+                        playerAvg.exclusionsPerMatch,
+                        playerAvg.minutesPerMatch
+                    ],
+                    backgroundColor: '#22d3ee'
+                },
+                {
+                    label: 'Mitjana Equip',
+                    data: [
+                        teamAvg.goalsPerMatch,
+                        teamAvg.assistsPerMatch,
+                        teamAvg.exclusionsPerMatch,
+                        teamAvg.minutesPerMatch
+                    ],
+                    backgroundColor: '#fbbf24'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: 'white' } } },
+            scales: {
+                x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                y: { 
+                    ticks: { color: 'white' }, 
+                    grid: { color: 'rgba(255,255,255,0.1)' },
+                    title: { display: true, text: 'Mitjana', color: 'white' }
+                }
+            }
+        }
+    });
+}
+
+// Calcular mitjanes de tot l'equip
+function calculateTeamAverages() {
+    let totalGoals = 0, totalAssists = 0, totalExclusions = 0, totalMinutes = 0, totalPlayers = 0;
+    
+    allMatches.forEach(match => {
+        match.jugadors?.forEach(j => {
+            if (!j.numero) return;
+            const stats = j.estadistiques || {};
+            totalGoals += stats.gols || 0;
+            totalAssists += stats.assistencies || 0;
+            totalExclusions += stats.exclusions || 0;
+            totalMinutes += j.temps || 0;
+            totalPlayers++;
+        });
+    });
+    
+    return {
+        goalsPerMatch: totalGoals / totalPlayers,
+        assistsPerMatch: totalAssists / totalPlayers,
+        exclusionsPerMatch: totalExclusions / totalPlayers,
+        minutesPerMatch: totalMinutes / totalPlayers
+    };
+}
+
+// Rendiment casa vs fora
+function renderHomeAwayChart(data) {
+    const ctx = document.getElementById('homeAwayChart');
+    
+    const homeAvg = data.homeStats.matches > 0 ? data.homeStats.goals / data.homeStats.matches : 0;
+    const awayAvg = data.awayStats.matches > 0 ? data.awayStats.goals / data.awayStats.matches : 0;
+    const homeMinAvg = data.homeStats.matches > 0 ? data.homeStats.minutes / data.homeStats.matches : 0;
+    const awayMinAvg = data.awayStats.matches > 0 ? data.awayStats.minutes / data.awayStats.matches : 0;
+    
+    if (window.homeAwayChartInstance) {
+        window.homeAwayChartInstance.destroy();
+    }
+    
+    window.homeAwayChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Partits', 'Gols/Partit', 'Minuts/Partit'],
+            datasets: [
+                {
+                    label: '🏠 Casa',
+                    data: [data.homeStats.matches, homeAvg, homeMinAvg],
+                    backgroundColor: '#22c55e'
+                },
+                {
+                    label: '✈️ Fora',
+                    data: [data.awayStats.matches, awayAvg, awayMinAvg],
+                    backgroundColor: '#3b82f6'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: 'white' } } },
+            scales: {
+                x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+            }
+        }
+    });
+}
+
+// Rendiment per quarter
+function renderQuarterPerformanceChart(data) {
+    const ctx = document.getElementById('quarterPerformanceChart');
+    
+    // Convertir segons a minuts per mostrar
+    const minutesPerQuarter = {
+        q1: (data.minutesByQuarter.q1 / 60).toFixed(1),
+        q2: (data.minutesByQuarter.q2 / 60).toFixed(1),
+        q3: (data.minutesByQuarter.q3 / 60).toFixed(1),
+        q4: (data.minutesByQuarter.q4 / 60).toFixed(1)
+    };
+    
+    const avgGoals = ['q1', 'q2', 'q3', 'q4'].map(q => {
+        const mins = data.minutesByQuarter[q] / 60;
+        const goals = data.goalsByQuarter[q];
+        return mins > 0 ? (goals / mins * 60).toFixed(2) : 0;
+    });
+    
+    if (window.quarterPerformanceChartInstance) {
+        window.quarterPerformanceChartInstance.destroy();
+    }
+    
+    window.quarterPerformanceChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['1r Quarter', '2n Quarter', '3r Quarter', '4t Quarter'],
+            datasets: [
+                {
+                    label: 'Minuts Jugats',
+                    data: [minutesPerQuarter.q1, minutesPerQuarter.q2, minutesPerQuarter.q3, minutesPerQuarter.q4],
+                    backgroundColor: '#8b5cf6',
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Gols',
+                    data: [data.goalsByQuarter.q1, data.goalsByQuarter.q2, data.goalsByQuarter.q3, data.goalsByQuarter.q4],
+                    backgroundColor: '#22d3ee',
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: 'white' } } },
+            scales: {
+                x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                y: {
+                    type: 'linear',
+                    position: 'left',
+                    title: { display: true, text: 'Minuts', color: 'white' },
+                    ticks: { color: 'white' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                y1: {
+                    type: 'linear',
+                    position: 'right',
+                    title: { display: true, text: 'Gols', color: 'white' },
+                    ticks: { color: 'white' },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+// Taula històric de partits
+function renderPlayerMatchHistory(data) {
+    const table = document.getElementById('playerMatchHistoryTable');
+    
+    // Ordenar per data (més recent primer)
+    const sortedMatches = [...data.matchDetails].sort((a, b) => {
+        const dateA = parseSpanishDate(a.date);
+        const dateB = parseSpanishDate(b.date);
+        return dateB - dateA;
+    });
+    
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Rival</th>
+                <th>Lloc</th>
+                <th>Min</th>
+                <th>Gols</th>
+                <th>Assist</th>
+                <th>Excl</th>
+                <th>Rob</th>
+                <th>MVP</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${sortedMatches.map(m => `
+                <tr>
+                    <td>${m.date}</td>
+                    <td>${m.rival}</td>
+                    <td style="text-align: center;">${m.location}</td>
+                    <td>${m.minutes}'</td>
+                    <td style="font-weight: bold; color: #22d3ee;">${m.goals}</td>
+                    <td>${m.assists}</td>
+                    <td>${m.exclusions}</td>
+                    <td>${m.steals}</td>
+                    <td style="text-align: center;">${m.mvp}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+        <tfoot>
+            <tr style="font-weight: bold; background: rgba(34, 211, 238, 0.2);">
+                <td colspan="3">TOTALS</td>
+                <td>${data.totalMinutes}'</td>
+                <td style="color: #22d3ee;">${data.totalGoals}</td>
+                <td>${data.totalAssists}</td>
+                <td>${data.totalExclusions}</td>
+                <td>${data.totalSteals}</td>
+                <td style="text-align: center;">${data.mvpCount}</td>
+            </tr>
+        </tfoot>
+    `;
+}
+
+// Inicialitzar checkboxes per comparar jugadors
+function initializeComparePlayersCheckboxes(currentPlayer) {
+    const container = document.getElementById('comparePlayersCheckboxes');
+    const playerSet = new Set();
+    
+    allMatches.forEach(match => {
+        match.jugadors?.forEach(j => {
+            if (j.numero && !(j.numero === currentPlayer.num && j.nom.trim() === currentPlayer.name)) {
+                playerSet.add(JSON.stringify({ num: j.numero, name: j.nom.trim() }));
+            }
+        });
+    });
+    
+    const players = Array.from(playerSet)
+        .map(p => JSON.parse(p))
+        .sort((a, b) => a.num - b.num);
+    
+    container.innerHTML = players.map(p => `
+        <label>
+            <input type="checkbox" value="${p.num}|${p.name}" class="compare-player-checkbox">
+            ${p.num}. ${p.name}
+        </label>
+    `).join('');
+}
+
+// Comparar jugadors seleccionats
+function compareSelectedPlayers() {
+    const checkboxes = document.querySelectorAll('.compare-player-checkbox:checked');
+    
+    if (checkboxes.length === 0) {
+        alert('Selecciona almenys un jugador per comparar');
+        return;
+    }
+    
+    if (checkboxes.length > 4) {
+        alert('Màxim 4 jugadors per comparar (a més del jugador principal)');
+        return;
+    }
+    
+    const playersToCompare = [selectedPlayer];
+    
+    checkboxes.forEach(cb => {
+        const [num, name] = cb.value.split('|');
+        playersToCompare.push({ num: parseInt(num), name: name });
+    });
+    
+    renderMultiPlayerComparison(playersToCompare);
+    document.getElementById('multiPlayerComparisonContent').classList.remove('hidden');
+}
+
+// Gràfic comparatiu multi-jugador
+function renderMultiPlayerComparison(players) {
+    const ctx = document.getElementById('multiPlayerComparisonChart');
+    
+    const datasets = players.map((player, idx) => {
+        const data = calculatePlayerFullStats(player);
+        const colors = ['#22d3ee', '#fbbf24', '#22c55e', '#8b5cf6', '#ef4444'];
+        
+        return {
+            label: `${player.num}. ${player.name}`,
+            data: [
+                (data.totalGoals / data.totalMatches).toFixed(2),
+                (data.totalAssists / data.totalMatches).toFixed(2),
+                (data.totalMinutes / data.totalMatches).toFixed(1),
+                (data.totalExclusions / data.totalMatches).toFixed(2)
+            ],
+            backgroundColor: colors[idx % colors.length]
+        };
+    });
+    
+    if (window.multiPlayerComparisonChartInstance) {
+        window.multiPlayerComparisonChartInstance.destroy();
+    }
+    
+    window.multiPlayerComparisonChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Gols/Partit', 'Assist./Partit', 'Min/Partit', 'Excl./Partit'],
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: 'white' } } },
+            scales: {
+                x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                y: { 
+                    ticks: { color: 'white' }, 
+                    grid: { color: 'rgba(255,255,255,0.1)' },
+                    title: { display: true, text: 'Mitjana per Partit', color: 'white' }
+                }
+            }
+        }
+    });
+}
+
+// Funció auxiliar per parsejar dates en espanyol
+function parseSpanishDate(dateStr) {
+    if (!dateStr) return new Date(0);
+    
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+    
+    return new Date(dateStr);
+}
    </script>
    <script>
     // 🔒 Bloqueo de clic derecho y atajos

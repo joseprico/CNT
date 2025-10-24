@@ -2490,7 +2490,15 @@ document.getElementById('matchInfo').insertAdjacentHTML('afterend', `
     }
 }  // ← Tancament de displayMatchData()
        
-
+function sortSingleMatchTable(column) {
+    if (singleMatchSortColumn === column) {
+        singleMatchSortOrder = singleMatchSortOrder === 'desc' ? 'asc' : 'desc';
+    } else {
+        singleMatchSortColumn = column;
+        singleMatchSortOrder = 'desc';
+    }
+    renderSingleMatchStatsTable();
+}
  function renderSingleMatchStatsTable() {
     const table = document.getElementById('singleMatchStatsTable');
     if (!table || !currentMatch) return;
@@ -2543,33 +2551,128 @@ document.getElementById('matchInfo').insertAdjacentHTML('afterend', `
             eficiencia: eficiencia,
             valor: valor.toFixed(1)
         };
-    }).sort((a, b) => b.valor - a.valor);
+    });
 
+   // Aplicar ordenació segons la columna seleccionada
+   players.sort((a, b) => {
+       let valA, valB;
+       
+       switch(singleMatchSortColumn) {
+           case 'num':
+               valA = a.num;
+               valB = b.num;
+               break;
+           case 'nom':
+               return singleMatchSortOrder === 'desc' 
+                   ? b.nom.localeCompare(a.nom)
+                   : a.nom.localeCompare(b.nom);
+           case 'gols':
+               valA = a.gols;
+               valB = b.gols;
+               break;
+           case 'hPlus':
+               valA = a.hPlus;
+               valB = b.hPlus;
+               break;
+           case 'penalty':
+               valA = a.penalty;
+               valB = b.penalty;
+               break;
+           case 'contra':
+               valA = a.contra;
+               valB = b.contra;
+               break;
+           case 'boya':
+               valA = a.boya;
+               valB = b.boya;
+               break;
+           case 'normal':
+               valA = a.normal;
+               valB = b.normal;
+               break;
+           case 'exclusions':
+               valA = a.exclusions;
+               valB = b.exclusions;
+               break;
+           case 'parades':
+               valA = a.parades;
+               valB = b.parades;
+               break;
+           case 'assistencies':
+               valA = a.assistencies;
+               valB = b.assistencies;
+               break;
+           case 'robatoris':
+               valA = a.robatoris;
+               valB = b.robatoris;
+               break;
+           case 'blocks':
+               valA = a.blocks;
+               valB = b.blocks;
+               break;
+           case 'infraccions2m':
+               valA = a.infraccions2m;
+               valB = b.infraccions2m;
+               break;
+           case 'perdues':
+               valA = a.perdues;
+               valB = b.perdues;
+               break;
+           case 'faltesRebudes':
+               valA = a.faltesRebudes;
+               valB = b.faltesRebudes;
+               break;
+           case 'xutsFallats':
+               valA = a.xutsFallats;
+               valB = b.xutsFallats;
+               break;
+           case 'penaltyMissed':
+               valA = a.penaltyMissed;
+               valB = b.penaltyMissed;
+               break;
+           case 'eficiencia':
+               valA = parseFloat(a.eficiencia);
+               valB = parseFloat(b.eficiencia);
+               break;
+           case 'valor':
+               valA = parseFloat(a.valor);
+               valB = parseFloat(b.valor);
+               break;
+           default:
+               return 0;
+       }
+       
+       return singleMatchSortOrder === 'desc' ? valB - valA : valA - valB;
+   });
+   const getSortIndicator = (column) => {
+       if (singleMatchSortColumn !== column) return '';
+       return singleMatchSortOrder === 'desc' ? ' ▼' : ' ▲';
+   };
     table.innerHTML = `
         <thead>
-            <tr>
-                <th>Nº</th>
-                <th>Jugador</th>
-                <th>Gols</th>
-                <th>H+</th>
-                <th>Pen</th>
-                <th>Con</th>
-                <th>Boy</th>
-                <th>Nor</th>
-                <th>Exc</th>
-                <th>🧤 Par</th>
-                <th>🎯 Ast</th>
-                <th>🛡️ Rob</th>
-				<th>🚫 Blk</th>
-                <th>📏 2m</th>
-				<th>❌ Pèr</th>
-                <th>⚠️ FR</th>
-                <th>Xuts</th>
-                <th>PenF</th>
-                <th>Efic%</th>
-                <th>⭐ Valor</th>
-            </tr>
-        </thead>
+       <tr>
+           <th onclick="sortSingleMatchTable('num')" style="cursor: pointer;">Nº${getSortIndicator('num')}</th>
+           <th onclick="sortSingleMatchTable('nom')" style="cursor: pointer;">Jugador${getSortIndicator('nom')}</th>
+           <th onclick="sortSingleMatchTable('gols')" style="cursor: pointer;">Gols${getSortIndicator('gols')}</th>
+           <th onclick="sortSingleMatchTable('hPlus')" style="cursor: pointer;">H+${getSortIndicator('hPlus')}</th>
+           <th onclick="sortSingleMatchTable('penalty')" style="cursor: pointer;">Pen${getSortIndicator('penalty')}</th>
+           <th onclick="sortSingleMatchTable('contra')" style="cursor: pointer;">Con${getSortIndicator('contra')}</th>
+           <th onclick="sortSingleMatchTable('boya')" style="cursor: pointer;">Boy${getSortIndicator('boya')}</th>
+           <th onclick="sortSingleMatchTable('normal')" style="cursor: pointer;">Nor${getSortIndicator('normal')}</th>
+           <th onclick="sortSingleMatchTable('exclusions')" style="cursor: pointer;">Exc${getSortIndicator('exclusions')}</th>
+           <th onclick="sortSingleMatchTable('parades')" style="cursor: pointer;">🧤 Par${getSortIndicator('parades')}</th>
+           <th onclick="sortSingleMatchTable('assistencies')" style="cursor: pointer;">🎯 Ast${getSortIndicator('assistencies')}</th>
+           <th onclick="sortSingleMatchTable('robatoris')" style="cursor: pointer;">🛡️ Rob${getSortIndicator('robatoris')}</th>
+           <th onclick="sortSingleMatchTable('blocks')" style="cursor: pointer;">🚫 Blk${getSortIndicator('blocks')}</th>
+           <th onclick="sortSingleMatchTable('infraccions2m')" style="cursor: pointer;">📏 2m${getSortIndicator('infraccions2m')}</th>
+           <th onclick="sortSingleMatchTable('perdues')" style="cursor: pointer;">❌ Pèr${getSortIndicator('perdues')}</th>
+           <th onclick="sortSingleMatchTable('faltesRebudes')" style="cursor: pointer;">⚠️ FR${getSortIndicator('faltesRebudes')}</th>
+           <th onclick="sortSingleMatchTable('xutsFallats')" style="cursor: pointer;">Xuts${getSortIndicator('xutsFallats')}</th>
+           <th onclick="sortSingleMatchTable('penaltyMissed')" style="cursor: pointer;">PenF${getSortIndicator('penaltyMissed')}</th>
+           <th onclick="sortSingleMatchTable('eficiencia')" style="cursor: pointer;">Efic%${getSortIndicator('eficiencia')}</th>
+           <th onclick="sortSingleMatchTable('valor')" style="cursor: pointer;">⭐ Valor${getSortIndicator('valor')}</th>
+       </tr>
+   </thead>
         <tbody>
             ${players.map((p, index) => {
                 // Colors per al podi
@@ -7449,6 +7552,8 @@ function renderGoalkeeperSavesChart() {
 let currentSortColumn = 'gols';
 let currentSortOrder = 'desc';
 let cachedPlayersData = [];
+let singleMatchSortColumn = 'valor';
+let singleMatchSortOrder = 'desc';
 
 function sortTable(column) {
     if (currentSortColumn === column) {

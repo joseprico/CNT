@@ -1103,6 +1103,64 @@ body.theme-juvenil {
         </div>
 
     </div>
+	<!-- Secció especial per PORTERS -->
+<div id="goalkeeperStatsContent" class="hidden">
+    
+    <!-- 1. Resum Específic de Porter -->
+    <div class="card">
+        <h2 class="section-title">🧤 Estadístiques de Porter</h2>
+        <div class="stats-grid" id="goalkeeperSummaryGrid"></div>
+    </div>
+
+    <!-- 2. Gràfic de % Parades -->
+    <div class="card">
+        <h2 class="section-title">📊 Percentatge de Parades</h2>
+        <canvas id="goalkeeperSavePercentageChart"></canvas>
+    </div>
+
+    <!-- 3. Parades per Tipus -->
+    <div class="card">
+        <h2 class="section-title">🤾 Parades per Tipus</h2>
+        <canvas id="goalkeeperSaveTypeChart"></canvas>
+    </div>
+
+    <!-- 4. Mapa de Calor - Zones de Parades -->
+    <div class="card">
+        <h2 class="section-title">🎯 Mapa de Zones - On Para Més</h2>
+        <div id="goalkeeperZonesHeatmap"></div>
+        <p style="font-size: 12px; color: #bae6fd; margin-top: 15px; text-align: center;">
+            * Zones des de la perspectiva del porter (esquerra del porter = dreta de l'atacant)
+        </p>
+    </div>
+
+    <!-- 5. Parades per Rival -->
+    <div class="card">
+        <h2 class="section-title">🏆 Rendiment per Rival</h2>
+        <div style="overflow-x: auto;">
+            <table class="comparison-table" id="goalkeeperByRivalTable"></table>
+        </div>
+    </div>
+
+    <!-- 6. Evolució Temporal del % Parades -->
+    <div class="card">
+        <h2 class="section-title">📈 Evolució del Percentatge de Parades</h2>
+        <canvas id="goalkeeperEvolutionChart"></canvas>
+    </div>
+
+    <!-- 7. Comparativa amb altres Porters -->
+    <div class="card">
+        <h2 class="section-title">⚖️ Comparativa amb Altres Porters</h2>
+        <canvas id="goalkeeperComparisonChart"></canvas>
+    </div>
+
+    <!-- 8. Penalties -->
+    <div class="card">
+        <h2 class="section-title">🎯 Estadístiques de Penalties</h2>
+        <div class="stats-grid" id="goalkeeperPenaltiesGrid"></div>
+    </div>
+
+</div>
+	
 </div>
          
 		   <!-- Vista de partido individual -->
@@ -8511,6 +8569,7 @@ function showPlayerStats() {
     
     if (!value) {
         document.getElementById('playerStatsContent').classList.add('hidden');
+        document.getElementById('goalkeeperStatsContent').classList.add('hidden');
         return;
     }
     
@@ -8520,18 +8579,30 @@ function showPlayerStats() {
     // Calcular totes les dades del jugador
     const playerData = calculatePlayerFullStats(selectedPlayer);
     
-    // Renderitzar totes les seccions
-    renderPlayerHeader(playerData);
-    renderPlayerSummary(playerData);
-    renderPlayerEvolutionChart(playerData);
-    renderPlayerGoalZones(playerData);
-    renderPlayerVsTeamChart(playerData);
-    renderHomeAwayChart(playerData);
-    renderQuarterPerformanceChart(playerData);
-    renderPlayerMatchHistory(playerData);
-    initializeComparePlayersCheckboxes(selectedPlayer);
+    // ✅ DETECTAR SI ÉS PORTER (número 1 o 13, o té parades)
+    const isGoalkeeper = selectedPlayer.num === 1 || selectedPlayer.num === 13 || playerData.totalSaves > 0;
     
-    document.getElementById('playerStatsContent').classList.remove('hidden');
+    if (isGoalkeeper) {
+        // Mostrar estadístiques de porter
+        document.getElementById('playerStatsContent').classList.add('hidden');
+        document.getElementById('goalkeeperStatsContent').classList.remove('hidden');
+        
+        renderGoalkeeperStats(playerData);
+    } else {
+        // Mostrar estadístiques normals
+        document.getElementById('playerStatsContent').classList.remove('hidden');
+        document.getElementById('goalkeeperStatsContent').classList.add('hidden');
+        
+        renderPlayerHeader(playerData);
+        renderPlayerSummary(playerData);
+        renderPlayerEvolutionChart(playerData);
+        renderPlayerGoalZones(playerData);
+        renderPlayerVsTeamChart(playerData);
+        renderHomeAwayChart(playerData);
+        renderQuarterPerformanceChart(playerData);
+        renderPlayerMatchHistory(playerData);
+        initializeComparePlayersCheckboxes(selectedPlayer);
+    }
 }
 
 // Calcular estadístiques completes del jugador
@@ -9189,7 +9260,534 @@ function renderMultiPlayerComparison(players) {
         }
     });
 }
+// ============================================
+// FUNCIONS ESPECÍFIQUES PER PORTERS
+// ============================================
 
+function calculateGoalkeeperStats(player) {
+    const data = {
+        num: player.num,
+        name: player.name,
+        totalMatches: 0,
+        totalMinutes: 0,
+        totalSaves: 0,
+        totalGoalsAgainst: 0,
+        savesByType: { corner: 0, rebuig: 0, atrapa: 0, penal: 0 },
+        savesByZone: {},
+        goalZonesAgainst: {},  // ✅ ZONES DELS GOLS REBUTS
+        savesByRival: {},
+        evolution: [],
+        penalties: { faced: 0, saved: 0 }
+    };
+    
+    allMatches.forEach(match => {
+        const matchPlayer = match.jugadors?.find(j => 
+            j.numero === player.num && j.nom.trim() === player.name
+        );
+        
+        if (!matchPlayer) return;
+        
+        data.totalMatches++;
+        
+        const stats = matchPlayer.estadistiques || {};
+        
+        // Calcular minuts
+        let minutes = 0;
+        if (match.playerWaterChanges && match.playerWaterChanges.length > 0 && match.quarterStartTimes) {
+            const playerTimes = calculateMatchPlayingTimes(match);
+            const playerTimeData = playerTimes[player.num];
+            if (playerTimeData) {
+                minutes = Math.round(playerTimeData.totalTime / 60);
+            }
+        } else {
+            minutes = matchPlayer.temps || 0;
+        }
+        
+        data.totalMinutes += minutes;
+        data.totalSaves += stats.parades || 0;
+        
+        // ✅ ZONES DELS GOLS REBUTS (des de golsRebutsZones)
+        if (stats.golsRebutsZones) {
+            Object.keys(stats.golsRebutsZones).forEach(zone => {
+                data.goalZonesAgainst[zone] = (data.goalZonesAgainst[zone] || 0) + (stats.golsRebutsZones[zone] || 0);
+            });
+        }
+        
+        // Gols encaixats
+        const golsRebuts = stats.golsRebuts || 0;
+        data.totalGoalsAgainst += golsRebuts;
+        
+        // Parades per tipus
+        if (stats.paradeTypes) {
+            Object.keys(stats.paradeTypes).forEach(type => {
+                data.savesByType[type] = (data.savesByType[type] || 0) + (stats.paradeTypes[type] || 0);
+            });
+        }
+        
+        // Penalties
+        data.penalties.saved += data.savesByType.penal || 0;
+        
+        // Calcular penalties afrontats des de chronologicalActions
+        if (match.chronologicalActions) {
+            const penaltiesAgainst = match.chronologicalActions.filter(a => 
+                a.type === 'goal' && 
+                a.team === 'rival' && 
+                a.goalType === 'penalty' &&
+                a.goalkeeperNum === player.num
+            ).length;
+            data.penalties.faced += penaltiesAgainst;
+        }
+        
+        // Per rival
+        const rivalName = match.rivalTeam || match.rival || 'Desconocido';
+        if (!data.savesByRival[rivalName]) {
+            data.savesByRival[rivalName] = { 
+                matches: 0, 
+                saves: 0, 
+                goalsAgainst: 0,
+                minutes: 0
+            };
+        }
+        data.savesByRival[rivalName].matches++;
+        data.savesByRival[rivalName].saves += stats.parades || 0;
+        data.savesByRival[rivalName].goalsAgainst += golsRebuts;
+        data.savesByRival[rivalName].minutes += minutes;
+        
+        // Evolució temporal
+        const totalShots = (stats.parades || 0) + golsRebuts;
+        const savePercentage = totalShots > 0 ? ((stats.parades || 0) / totalShots * 100).toFixed(1) : 0;
+        
+        data.evolution.push({
+            date: match.data || match.rival || `Partit ${data.totalMatches}`,
+            rival: rivalName,
+            saves: stats.parades || 0,
+            goalsAgainst: golsRebuts,
+            savePercentage: savePercentage,
+            minutes: minutes
+        });
+    });
+    
+    // Ordenar evolució per data
+    data.evolution.sort((a, b) => {
+        const dateA = parseSpanishDate(a.date);
+        const dateB = parseSpanishDate(b.date);
+        return dateA - dateB;
+    });
+    
+    return data;
+}
+function renderGoalkeeperStats(playerData) {
+    const gkData = calculateGoalkeeperStats(selectedPlayer);
+    
+    renderGoalkeeperSummary(gkData);
+    renderGoalkeeperSavePercentageChart(gkData);
+    renderGoalkeeperSaveTypeChart(gkData);
+    renderGoalkeeperZonesHeatmap(gkData);
+    renderGoalkeeperByRivalTable(gkData);
+    renderGoalkeeperEvolutionChart(gkData);
+    renderGoalkeeperComparisonChart(gkData);
+    renderGoalkeeperPenalties(gkData);
+}
+
+function renderGoalkeeperSummary(data) {
+    const grid = document.getElementById('goalkeeperSummaryGrid');
+    
+    const totalShots = data.totalSaves + data.totalGoalsAgainst;
+    const savePercentage = totalShots > 0 ? ((data.totalSaves / totalShots) * 100).toFixed(1) : 0;
+    const savesPerMatch = (data.totalSaves / data.totalMatches).toFixed(1);
+    const goalsPerMatch = (data.totalGoalsAgainst / data.totalMatches).toFixed(1);
+    const avgMinutes = (data.totalMinutes / data.totalMatches).toFixed(1);
+    
+    grid.innerHTML = `
+        <div class="stat-card">
+            <div class="stat-value" style="color: #22c55e;">${savePercentage}%</div>
+            <div class="stat-label">% Parades</div>
+            <div class="stat-sublabel">${data.totalSaves}/${totalShots} tirs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${data.totalSaves}</div>
+            <div class="stat-label">Parades Totals</div>
+            <div class="stat-sublabel">${savesPerMatch} per partit</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${data.totalGoalsAgainst}</div>
+            <div class="stat-label">Gols Encaixats</div>
+            <div class="stat-sublabel">${goalsPerMatch} per partit</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${data.totalMatches}</div>
+            <div class="stat-label">Partits Jugats</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${avgMinutes}'</div>
+            <div class="stat-label">Min/Partit</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${data.totalMinutes}'</div>
+            <div class="stat-label">Minuts Totals</div>
+        </div>
+    `;
+}
+
+function renderGoalkeeperSavePercentageChart(data) {
+    const ctx = document.getElementById('goalkeeperSavePercentageChart');
+    
+    const totalShots = data.totalSaves + data.totalGoalsAgainst;
+    const savePercentage = totalShots > 0 ? ((data.totalSaves / totalShots) * 100).toFixed(1) : 0;
+    const goalPercentage = (100 - savePercentage).toFixed(1);
+    
+    if (window.goalkeeperSavePercentageChartInstance) {
+        window.goalkeeperSavePercentageChartInstance.destroy();
+    }
+    
+    window.goalkeeperSavePercentageChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Parades', 'Gols Encaixats'],
+            datasets: [{
+                data: [data.totalSaves, data.totalGoalsAgainst],
+                backgroundColor: ['#22c55e', '#ef4444']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: 'white', font: { size: 14 } } },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed;
+                            const total = data.totalSaves + data.totalGoalsAgainst;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderGoalkeeperSaveTypeChart(data) {
+    const ctx = document.getElementById('goalkeeperSaveTypeChart');
+    
+    const types = Object.keys(data.savesByType);
+    const values = Object.values(data.savesByType);
+    
+    const labels = {
+        corner: '🎯 Córner',
+        rebuig: '👊 Rebuig',
+        atrapa: '🤲 Atrapa',
+        penal: '🎯 Penalty'
+    };
+    
+    if (window.goalkeeperSaveTypeChartInstance) {
+        window.goalkeeperSaveTypeChartInstance.destroy();
+    }
+    
+    window.goalkeeperSaveTypeChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: types.map(t => labels[t] || t),
+            datasets: [{
+                label: 'Parades',
+                data: values,
+                backgroundColor: ['#3b82f6', '#8b5cf6', '#22c55e', '#fbbf24']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                y: { 
+                    ticks: { color: 'white', stepSize: 1 }, 
+                    grid: { color: 'rgba(255,255,255,0.1)' },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function renderGoalkeeperZonesHeatmap(data) {
+    const container = document.getElementById('goalkeeperZonesHeatmap');
+    
+    // Si no hi ha dades de zones, mostrar missatge
+    if (Object.keys(data.goalZonesAgainst).length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #bae6fd;">
+                <p style="font-size: 16px; margin-bottom: 10px;">ℹ️ No hi ha dades de zones de gols rebuts</p>
+                <p style="font-size: 12px;">Aquesta funcionalitat registra les zones on el porter ha encaixat gols</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const zones = [
+        ['top-left', 'top-center', 'top-right'],
+        ['mid-left', 'mid-center', 'mid-right'],
+        ['bottom-left', 'bottom-center', 'bottom-right']
+    ];
+    
+    const zoneLabels = {
+        'top-left': 'Sup. Esq.',
+        'top-center': 'Sup. Centre',
+        'top-right': 'Sup. Dret',
+        'mid-left': 'Mig Esq.',
+        'mid-center': 'Mig Centre',
+        'mid-right': 'Mig Dret',
+        'bottom-left': 'Inf. Esq.',
+        'bottom-center': 'Inf. Centre',
+        'bottom-right': 'Inf. Dret'
+    };
+    
+    const maxGoals = Math.max(...Object.values(data.goalZonesAgainst), 1);
+    
+    let html = '<div class="zone-heatmap-container">';
+    
+    zones.forEach(row => {
+        row.forEach(zone => {
+            const count = data.goalZonesAgainst[zone] || 0;
+            const intensity = count / maxGoals;
+            // ✅ Vermell per gols rebuts (més intens = més gols)
+            const bgColor = `rgba(239, 68, 68, ${intensity})`;
+            
+            html += `
+                <div class="zone-cell" style="background: ${bgColor};">
+                    <div class="zone-label">${zoneLabels[zone]}</div>
+                    <div class="zone-count">${count}</div>
+                </div>
+            `;
+        });
+    });
+    
+    html += '</div>';
+    
+    // ✅ Afegir llegenda
+    html += `
+        <div style="margin-top: 20px; text-align: center;">
+            <p style="font-size: 14px; color: #bae6fd; margin-bottom: 10px;">
+                🎯 Mapa de Calor: Zones on ha encaixat més gols
+            </p>
+            <div style="display: flex; justify-content: center; gap: 20px; font-size: 12px;">
+                <div><span style="color: rgba(239, 68, 68, 0.3);">⬤</span> Pocs gols</div>
+                <div><span style="color: rgba(239, 68, 68, 1);">⬤</span> Molts gols</div>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+function renderGoalkeeperByRivalTable(data) {
+    const table = document.getElementById('goalkeeperByRivalTable');
+    
+    const rivals = Object.entries(data.savesByRival)
+        .map(([name, stats]) => {
+            const totalShots = stats.saves + stats.goalsAgainst;
+            const savePercentage = totalShots > 0 ? ((stats.saves / totalShots) * 100).toFixed(1) : 0;
+            return { name, ...stats, savePercentage };
+        })
+        .sort((a, b) => b.savePercentage - a.savePercentage);
+    
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Rival</th>
+                <th>Partits</th>
+                <th>Parades</th>
+                <th>Gols Enc.</th>
+                <th>% Parades</th>
+                <th>Min</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${rivals.map(r => {
+                const color = r.savePercentage >= 50 ? '#22c55e' : r.savePercentage >= 30 ? '#fbbf24' : '#ef4444';
+                return `
+                    <tr>
+                        <td><strong>${r.name}</strong></td>
+                        <td>${r.matches}</td>
+                        <td>${r.saves}</td>
+                        <td>${r.goalsAgainst}</td>
+                        <td style="font-weight: bold; color: ${color};">${r.savePercentage}%</td>
+                        <td>${r.minutes}'</td>
+                    </tr>
+                `;
+            }).join('')}
+        </tbody>
+    `;
+}
+
+function renderGoalkeeperEvolutionChart(data) {
+    const ctx = document.getElementById('goalkeeperEvolutionChart');
+    
+    if (window.goalkeeperEvolutionChartInstance) {
+        window.goalkeeperEvolutionChartInstance.destroy();
+    }
+    
+    window.goalkeeperEvolutionChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.evolution.map(e => e.date),
+            datasets: [
+                {
+                    label: '% Parades',
+                    data: data.evolution.map(e => e.savePercentage),
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { labels: { color: 'white' } },
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            const idx = context[0].dataIndex;
+                            return data.evolution[idx].rival;
+                        },
+                        afterLabel: function(context) {
+                            const idx = context.dataIndex;
+                            const ev = data.evolution[idx];
+                            return `Parades: ${ev.saves} | Gols: ${ev.goalsAgainst}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                y: { 
+                    ticks: { 
+                        color: 'white',
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }, 
+                    grid: { color: 'rgba(255,255,255,0.1)' },
+                    min: 0,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+function renderGoalkeeperComparisonChart(gkData) {
+    const ctx = document.getElementById('goalkeeperComparisonChart');
+    
+    // Trobar tots els porters
+    const allGoalkeepers = [];
+    const goalkeeperStats = {};
+    
+    allMatches.forEach(match => {
+        match.jugadors?.forEach(j => {
+            if ((j.numero === 1 || j.numero === 13) && j.estadistiques?.parades > 0) {
+                const key = `${j.numero}|${j.nom.trim()}`;
+                if (!goalkeeperStats[key]) {
+                    goalkeeperStats[key] = {
+                        num: j.numero,
+                        name: j.nom.trim(),
+                        totalSaves: 0,
+                        totalGoalsAgainst: 0,
+                        matches: 0
+                    };
+                }
+                goalkeeperStats[key].totalSaves += j.estadistiques.parades || 0;
+                
+                const rivalScore = match.periodScores ? 
+                    (match.periodScores.q1?.rival || 0) + 
+                    (match.periodScores.q2?.rival || 0) + 
+                    (match.periodScores.q3?.rival || 0) + 
+                    (match.periodScores.q4?.rival || 0) : 0;
+                
+                goalkeeperStats[key].totalGoalsAgainst += rivalScore;
+                goalkeeperStats[key].matches++;
+            }
+        });
+    });
+    
+    const goalkeepers = Object.values(goalkeeperStats);
+    
+    if (goalkeepers.length <= 1) {
+        ctx.parentElement.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #bae6fd;">
+                <p>ℹ️ No hi ha altres porters per comparar</p>
+            </div>
+        `;
+        return;
+    }
+    
+    if (window.goalkeeperComparisonChartInstance) {
+        window.goalkeeperComparisonChartInstance.destroy();
+    }
+    
+    const datasets = goalkeepers.map((gk, idx) => {
+        const totalShots = gk.totalSaves + gk.totalGoalsAgainst;
+        const savePercentage = totalShots > 0 ? ((gk.totalSaves / totalShots) * 100).toFixed(1) : 0;
+        const savesPerMatch = (gk.totalSaves / gk.matches).toFixed(1);
+        
+        const colors = ['#22d3ee', '#fbbf24', '#22c55e', '#8b5cf6'];
+        const isCurrentPlayer = gk.num === selectedPlayer.num && gk.name === selectedPlayer.name;
+        
+        return {
+            label: `${gk.num}. ${gk.name}`,
+            data: [parseFloat(savePercentage), parseFloat(savesPerMatch), gk.matches],
+            backgroundColor: isCurrentPlayer ? '#22c55e' : colors[idx % colors.length],
+            borderWidth: isCurrentPlayer ? 3 : 0,
+            borderColor: isCurrentPlayer ? '#fff' : 'transparent'
+        };
+    });
+    
+    window.goalkeeperComparisonChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['% Parades', 'Parades/Partit', 'Partits'],
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { labels: { color: 'white' } } },
+            scales: {
+                x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+            }
+        }
+    });
+}
+
+function renderGoalkeeperPenalties(data) {
+    const grid = document.getElementById('goalkeeperPenaltiesGrid');
+    
+    const penaltySavePercentage = data.penalties.faced > 0 ? 
+        ((data.penalties.saved / data.penalties.faced) * 100).toFixed(1) : 0;
+    
+    grid.innerHTML = `
+        <div class="stat-card">
+            <div class="stat-value">${data.penalties.faced}</div>
+            <div class="stat-label">Penalties Afrontats</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" style="color: #22c55e;">${data.penalties.saved}</div>
+            <div class="stat-label">Penalties Parats</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" style="color: ${penaltySavePercentage >= 50 ? '#22c55e' : '#fbbf24'};">
+                ${penaltySavePercentage}%
+            </div>
+            <div class="stat-label">% Èxit Penalties</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${data.penalties.faced - data.penalties.saved}</div>
+            <div class="stat-label">Penalties Gol</div>
+        </div>
+    `;
+}
 // Funció auxiliar per parsejar dates en espanyol
 function parseSpanishDate(dateStr) {
     if (!dateStr) return new Date(0);
@@ -9204,13 +9802,13 @@ function parseSpanishDate(dateStr) {
    </script>
    <script>
     // 🔒 Bloqueo de clic derecho y atajos
-   /* document.addEventListener("contextmenu", event => event.preventDefault());
+    document.addEventListener("contextmenu", event => event.preventDefault());
     document.addEventListener("keydown", event => {
       if ((event.ctrlKey && ["s", "u"].includes(event.key.toLowerCase())) ||
           event.key === "F12") {
         event.preventDefault();
       }
-    });*/
+    });
     </script>
 </body>
 </html>

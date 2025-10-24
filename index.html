@@ -171,7 +171,17 @@ body.theme-juvenil {
     border-collapse: collapse;
     margin-top: 10px;
 }
+/* Limitar alçada dels gràfics circulars de porters */
+#goalkeeperSavePercentageChart {
+    max-height: 300px !important;
+    width: 100% !important;
+}
 
+@media (max-width: 768px) {
+    #goalkeeperSavePercentageChart {
+        max-height: 250px !important;
+    }
+}
 .stats-table th,
 .stats-table td {
     padding: 10px;
@@ -1112,11 +1122,13 @@ body.theme-juvenil {
         <div class="stats-grid" id="goalkeeperSummaryGrid"></div>
     </div>
 
-    <!-- 2. Gràfic de % Parades -->
-    <div class="card">
-        <h2 class="section-title">📊 Percentatge de Parades</h2>
+    !-- 2. Gràfic de % Parades -->
+<div class="card">
+    <h2 class="section-title">📊 Percentatge de Parades</h2>
+    <div style="max-width: 400px; max-height: 400px; margin: 0 auto;">
         <canvas id="goalkeeperSavePercentageChart"></canvas>
     </div>
+</div>
 
     <!-- 3. Parades per Tipus -->
     <div class="card">
@@ -9451,8 +9463,13 @@ function renderGoalkeeperSavePercentageChart(data) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: true,  // ✅ AFEGIR AQUESTA LÍNIA
+            aspectRatio: 2,  // ✅ AFEGIR: controla la relació ample/alt (2 = més ample que alt)
             plugins: {
-                legend: { labels: { color: 'white', font: { size: 14 } } },
+                legend: { 
+                    labels: { color: 'white', font: { size: 14 } },
+                    position: 'bottom'  // ✅ Posar llegenda a baix
+                },
                 tooltip: {
                     callbacks: {
                         label: function(context) {

@@ -8818,7 +8818,7 @@ function calculatePlayerFullStats(player) {
         data.matchDetails.push({
             date: match.data || '',
             rival: match.rivalTeam || match.rival || 'Desconocido',
-            location: match.matchLocation === 'casa' ? '🏠' : '✈️',
+            location: (match.matchLocation === 'home' || match.matchLocation === 'casa' || match.homeAway === 'casa') ? '🏠' : '✈️',
             minutes: minutes,
             goals: stats.gols || 0,
             assists: stats.assistencies || 0,

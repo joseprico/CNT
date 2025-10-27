@@ -1236,7 +1236,7 @@ body.theme-juvenil {
         • Gol normal/contraatac/H+/boya: +2 | Gol penalty: +1<br>
         • Assistència: +1 | Robatori: +1 | Blocatge: +1 | Parada: +1 | Parada penal: +2 | Falta rebuda: +1<br><br>
         <strong style="color: #ef4444;">Accions Negatives:</strong><br>
-        • Exclusió (normal o penalty): -1 | Penalty fallat: -2 | Pèrdua: -0.5 | Tir fallat: -0.5 |Infraccions 2m(-0.5)| Gol rebut (porters): -0.5
+        • Exclusió (normal o penalty): -1 | Penalty fallat: -2 | Pèrdua: -0.5 | Tir fallat: -0.5 | Infraccions 2m: -0.5 | Contrafalta: -0.75 | Gol rebut (porters): -0.5
     </div>
 </div>
 </div>
@@ -1931,6 +1931,7 @@ if (document.getElementById('scoreboardCNT')) {
     .filter(j => j.estadistiques.gols > 0 || j.estadistiques.exclusions > 0 || 
              (j.estadistiques.parades || 0) > 0 || (j.estadistiques.assistencies || 0) > 0 || 
              (j.estadistiques.infraccions2m || 0) > 0 ||  // ✅ AFEGEIX AQUESTA LÍNIA
+			 (j.estadistiques.contrafaltes || 0) > 0 ||
              (j.estadistiques.robatoris || 0) > 0 || (j.estadistiques.perdues || 0) > 0 || 
              (j.estadistiques.xutsFallats || 0) > 0 || (j.estadistiques.blocks || 0) > 0 ||
              (j.estadistiques.faltesRebudes || 0) > 0)
@@ -1946,6 +1947,7 @@ if (document.getElementById('scoreboardCNT')) {
             const perdues = j.estadistiques.perdues || 0;
             const xutsFallats = j.estadistiques.xutsFallats || 0;
             const blocks = j.estadistiques.blocks || 0;
+			const contrafaltes = j.estadistiques.contrafaltes || 0;
             const faltesRebudes = j.estadistiques.faltesRebudes || 0;
             
             const isGoalkeeper = j.numero === 1 || j.numero === 13;
@@ -2022,7 +2024,13 @@ if (document.getElementById('scoreboardCNT')) {
     <div class="stat-value" style="color: #fb923c;">${infraccions2m}</div>
 </div>
 ` : ''}
-                    ${robatoris > 0 ? `
+                    ${contrafaltes > 0 ? `
+<div class="stat-item">
+    <div class="stat-label">⚠️ C.F</div>
+    <div class="stat-value" style="color: #fbbf24;">${contrafaltes}</div>
+</div>
+` : ''}
+					${robatoris > 0 ? `
                     <div class="stat-item">
                         <div class="stat-label">🛡️ Rob</div>
                         <div class="stat-value" style="color: #7dd3fc;">${robatoris}</div>
@@ -2241,6 +2249,7 @@ const playersWithValue = currentMatch.jugadors.map(j => {
         goalTypes: j.estadistiques.goalTypes,
         assistencies: j.estadistiques.assistencies,
         infraccions2m: j.estadistiques.infraccions2m || 0,  // ✅ AFEGEIX AQUESTA LÍNIA
+		contrafaltes: j.estadistiques.contrafaltes || 0,
         robatoris: j.estadistiques.robatoris,
         blocatges: j.estadistiques.blocks || 0,
         parades: j.estadistiques.parades,
@@ -2321,7 +2330,13 @@ document.getElementById('matchInfo').insertAdjacentHTML('afterend', `
         <div style="color: #fb923c; font-weight: bold;">${player.estadistiques.infraccions2m}</div>
     </div>
 ` : ''}
-                            ${player.estadistiques.exclusions > 0 ? `
+                            ${(player.estadistiques.contrafaltes || 0) > 0 ? `
+    <div style="background: rgba(251, 191, 36, 0.2); padding: 6px; border-radius: 4px; text-align: center;">
+        <div style="color: #bae6fd;">C.F</div>
+        <div style="color: #fbbf24; font-weight: bold;">${player.estadistiques.contrafaltes}</div>
+    </div>
+` : ''}
+							${player.estadistiques.exclusions > 0 ? `
                                 <div style="background: rgba(239, 68, 68, 0.2); padding: 6px; border-radius: 4px; text-align: center;">
                                     <div style="color: #bae6fd;">Exc</div>
                                     <div style="color: #ef4444; font-weight: bold;">${player.estadistiques.exclusions}</div>
@@ -2520,6 +2535,7 @@ function sortSingleMatchTable(column) {
     goalTypes: stats.goalTypes,
     assistencies: stats.assistencies,
     infraccions2m: stats.infraccions2m || 0,  // ✅ AFEGEIX
+	contrafaltes: stats.contrafaltes || 0,
     robatoris: stats.robatoris,
     blocatges: totalBlocks,
     parades: stats.parades,
@@ -2548,6 +2564,7 @@ function sortSingleMatchTable(column) {
             blocks: totalBlocks,  // ✅ AFEGIR AQUESTA LÍNIA
             infraccions2m: stats.infraccions2m || 0,
 			perdues: stats.perdues || 0,
+			contrafaltes: stats.contrafaltes || 0,
             faltesRebudes: stats.faltesRebudes || 0,
             xutsFallats: stats.xutsFallats || 0,
             penaltyMissed: stats.penaltyMissed || 0,
@@ -2617,6 +2634,10 @@ function sortSingleMatchTable(column) {
                valA = a.infraccions2m;
                valB = b.infraccions2m;
                break;
+			case 'contrafaltes':
+    valA = a.contrafaltes;
+    valB = b.contrafaltes;
+    break;   
            case 'perdues':
                valA = a.perdues;
                valB = b.perdues;
@@ -2652,30 +2673,31 @@ function sortSingleMatchTable(column) {
        return singleMatchSortOrder === 'desc' ? ' ▼' : ' ▲';
    };
     table.innerHTML = `
-        <thead>
-       <tr>
-           <th onclick="sortSingleMatchTable('num')" style="cursor: pointer;">Nº${getSortIndicator('num')}</th>
-           <th onclick="sortSingleMatchTable('nom')" style="cursor: pointer;">Jugador${getSortIndicator('nom')}</th>
-           <th onclick="sortSingleMatchTable('gols')" style="cursor: pointer;">Gols${getSortIndicator('gols')}</th>
-           <th onclick="sortSingleMatchTable('hPlus')" style="cursor: pointer;">H+${getSortIndicator('hPlus')}</th>
-           <th onclick="sortSingleMatchTable('penalty')" style="cursor: pointer;">Pen${getSortIndicator('penalty')}</th>
-           <th onclick="sortSingleMatchTable('contra')" style="cursor: pointer;">Con${getSortIndicator('contra')}</th>
-           <th onclick="sortSingleMatchTable('boya')" style="cursor: pointer;">Boy${getSortIndicator('boya')}</th>
-           <th onclick="sortSingleMatchTable('normal')" style="cursor: pointer;">Nor${getSortIndicator('normal')}</th>
-           <th onclick="sortSingleMatchTable('exclusions')" style="cursor: pointer;">Exc${getSortIndicator('exclusions')}</th>
-           <th onclick="sortSingleMatchTable('parades')" style="cursor: pointer;">🧤 Par${getSortIndicator('parades')}</th>
-           <th onclick="sortSingleMatchTable('assistencies')" style="cursor: pointer;">🎯 Ast${getSortIndicator('assistencies')}</th>
-           <th onclick="sortSingleMatchTable('robatoris')" style="cursor: pointer;">🛡️ Rob${getSortIndicator('robatoris')}</th>
-           <th onclick="sortSingleMatchTable('blocks')" style="cursor: pointer;">🚫 Blk${getSortIndicator('blocks')}</th>
-           <th onclick="sortSingleMatchTable('infraccions2m')" style="cursor: pointer;">📏 2m${getSortIndicator('infraccions2m')}</th>
-           <th onclick="sortSingleMatchTable('perdues')" style="cursor: pointer;">❌ Pèr${getSortIndicator('perdues')}</th>
-           <th onclick="sortSingleMatchTable('faltesRebudes')" style="cursor: pointer;">⚠️ FR${getSortIndicator('faltesRebudes')}</th>
-           <th onclick="sortSingleMatchTable('xutsFallats')" style="cursor: pointer;">Xuts${getSortIndicator('xutsFallats')}</th>
-           <th onclick="sortSingleMatchTable('penaltyMissed')" style="cursor: pointer;">PenF${getSortIndicator('penaltyMissed')}</th>
-           <th onclick="sortSingleMatchTable('eficiencia')" style="cursor: pointer;">Efic%${getSortIndicator('eficiencia')}</th>
-           <th onclick="sortSingleMatchTable('valor')" style="cursor: pointer;">⭐ Valor${getSortIndicator('valor')}</th>
-       </tr>
-   </thead>
+       <thead>
+   <tr>
+       <th onclick="sortSingleMatchTable('num')" style="cursor: pointer;">Nº${getSortIndicator('num')}</th>
+       <th onclick="sortSingleMatchTable('nom')" style="cursor: pointer;">Jugador${getSortIndicator('nom')}</th>
+       <th onclick="sortSingleMatchTable('gols')" style="cursor: pointer;">Gols${getSortIndicator('gols')}</th>
+       <th onclick="sortSingleMatchTable('hPlus')" style="cursor: pointer;">H+${getSortIndicator('hPlus')}</th>
+       <th onclick="sortSingleMatchTable('penalty')" style="cursor: pointer;">Pen${getSortIndicator('penalty')}</th>
+       <th onclick="sortSingleMatchTable('contra')" style="cursor: pointer;">Con${getSortIndicator('contra')}</th>
+       <th onclick="sortSingleMatchTable('boya')" style="cursor: pointer;">Boy${getSortIndicator('boya')}</th>
+       <th onclick="sortSingleMatchTable('normal')" style="cursor: pointer;">Nor${getSortIndicator('normal')}</th>
+       <th onclick="sortSingleMatchTable('parades')" style="cursor: pointer;">🧤 Par${getSortIndicator('parades')}</th>
+       <th onclick="sortSingleMatchTable('assistencies')" style="cursor: pointer;">🎯 Ast${getSortIndicator('assistencies')}</th>
+       <th onclick="sortSingleMatchTable('robatoris')" style="cursor: pointer;">🛡️ Rob${getSortIndicator('robatoris')}</th>
+       <th onclick="sortSingleMatchTable('blocks')" style="cursor: pointer;">🚫 Blk${getSortIndicator('blocks')}</th>
+       <th onclick="sortSingleMatchTable('faltesRebudes')" style="cursor: pointer;">⚠️ FR${getSortIndicator('faltesRebudes')}</th>
+       <th onclick="sortSingleMatchTable('exclusions')" style="cursor: pointer;">Exc${getSortIndicator('exclusions')}</th>
+       <th onclick="sortSingleMatchTable('infraccions2m')" style="cursor: pointer;">📏 2m${getSortIndicator('infraccions2m')}</th>
+       <th onclick="sortSingleMatchTable('contrafaltes')" style="cursor: pointer;">⚠️ CF${getSortIndicator('contrafaltes')}</th>
+       <th onclick="sortSingleMatchTable('perdues')" style="cursor: pointer;">❌ Pèr${getSortIndicator('perdues')}</th>
+       <th onclick="sortSingleMatchTable('xutsFallats')" style="cursor: pointer;">XutsF${getSortIndicator('xutsFallats')}</th>
+       <th onclick="sortSingleMatchTable('penaltyMissed')" style="cursor: pointer;">PenF${getSortIndicator('penaltyMissed')}</th>
+       <th onclick="sortSingleMatchTable('eficiencia')" style="cursor: pointer;">Efic%${getSortIndicator('eficiencia')}</th>
+       <th onclick="sortSingleMatchTable('valor')" style="cursor: pointer;">⭐ Valor${getSortIndicator('valor')}</th>
+   </tr>
+</thead>
         <tbody>
             ${players.map((p, index) => {
                 // Colors per al podi
@@ -2685,27 +2707,28 @@ function sortSingleMatchTable(column) {
                 
                 return `
                     <tr style="${rankColor}">
-                        <td>${p.num}</td>
-                        <td><strong>${p.nom.split(' ')[0]}</strong></td>
-                        <td>${p.gols}</td>
-                        <td>${p.hPlus}</td>
-                        <td>${p.penalty}</td>
-                        <td>${p.contra}</td>
-                        <td>${p.boya}</td>
-                        <td>${p.normal}</td>
-                        <td>${p.exclusions}</td>
-                        <td>${p.parades}</td>
-                        <td>${p.assistencies}</td>
-                        <td>${p.robatoris}</td>
-                        <td>${p.blocks}</td>
-						<td>${p.infraccions2m}</td>
-                        <td>${p.perdues}</td>
-                        <td>${p.faltesRebudes}</td>
-                        <td>${p.xutsFallats}</td>
-                        <td>${p.penaltyMissed}</td>
-                        <td>${p.eficiencia}%</td>
-                        <td><strong>${p.valor}</strong></td>
-                    </tr>
+    <td>${p.num}</td>
+    <td><strong>${p.nom.split(' ')[0]}</strong></td>
+    <td>${p.gols}</td>
+    <td>${p.hPlus}</td>
+    <td>${p.penalty}</td>
+    <td>${p.contra}</td>
+    <td>${p.boya}</td>
+    <td>${p.normal}</td>
+    <td>${p.parades}</td>
+    <td>${p.assistencies}</td>
+    <td>${p.robatoris}</td>
+    <td>${p.blocks}</td>
+    <td>${p.faltesRebudes}</td>
+    <td>${p.exclusions}</td>
+    <td>${p.infraccions2m}</td>
+    <td>${p.contrafaltes}</td>
+    <td>${p.perdues}</td>
+    <td>${p.xutsFallats}</td>
+    <td>${p.penaltyMissed}</td>
+    <td>${p.eficiencia}%</td>
+    <td><strong>${p.valor}</strong></td>
+</tr>
                 `;
             }).join('')}
         </tbody>
@@ -3197,6 +3220,7 @@ function displayComparison() {
                     paradeTypes: { corner: 0, rebuig: 0, atrapa: 0, penal: 0 },
                     assistencies: 0,
 					infraccions2m: 0,
+					contrafaltes: 0,
                     robatoris: 0,
                     perdues: 0,
                     xutsFallats: 0,
@@ -3216,6 +3240,7 @@ function displayComparison() {
             playerStats[playerName].parades += (j.estadistiques.parades || 0);
             playerStats[playerName].assistencies += (j.estadistiques.assistencies || 0);
 			playerStats[playerName].infraccions2m += (j.estadistiques.infraccions2m || 0);
+			playerStats[playerName].contrafaltes += (j.estadistiques.contrafaltes || 0);
             playerStats[playerName].robatoris += (j.estadistiques.robatoris || 0);
             playerStats[playerName].perdues += (j.estadistiques.perdues || 0);
             playerStats[playerName].xutsFallats += (j.estadistiques.xutsFallats || 0);
@@ -3259,6 +3284,7 @@ function displayComparison() {
         goalTypes: p.goalTypes,
         assistencies: p.assistencies,
         infraccions2m: p.infraccions2m || 0,  // ✅ AFEGEIX AQUESTA LÍNIA
+		contrafaltes: p.contrafaltes || 0,
         robatoris: p.robatoris,
         blocatges: p.blocks || 0,
         parades: p.parades,
@@ -3311,6 +3337,7 @@ function displayComparison() {
             goalTypes: p.goalTypes,
             assistencies: p.assistencies,
 			infraccions2m: p.infraccions2m || 0,
+			contrafaltes: p.contrafaltes || 0,
             robatoris: p.robatoris,
             blocatges: p.blocks || 0,
             parades: p.parades,
@@ -6384,6 +6411,7 @@ function calculatePlayerValue(stats) {
     valor += turnovers * (-0.5);   // Pèrdues: -0.5
     valor += shotsMissed * (-0.5); // Xuts fallats: -0.5
 	valor += (stats.infraccions2m || 0) * (-0.5);
+	valor += (stats.contrafaltes || 0) * (-0.75);  // Contrafaltes: -0.75
     valor += golsRebuts * (-0.5);    // ⚠️ NOU: Gols rebuts: -0.5
     return valor;
 }
@@ -7667,6 +7695,7 @@ case 'valor':
         goalTypes: a.goalTypes,
         assistencies: a.assistencies,
         infraccions2m: a.infraccions2m || 0,  // ✅ AFEGEIX
+		contrafaltes: a.contrafaltes || 0,
         robatoris: a.robatoris,
         blocatges: a.blocatges,
         parades: a.parades,
@@ -7680,6 +7709,7 @@ case 'valor':
         goalTypes: b.goalTypes,
         assistencies: b.assistencies,
         infraccions2m: b.infraccions2m || 0,  // ✅ AFEGEIX
+		contrafaltes: b.contrafaltes || 0,
         robatoris: b.robatoris,
         blocatges: b.blocatges,
         parades: b.parades,
@@ -7708,31 +7738,32 @@ function renderComparisonTable(players) {
     
     document.getElementById('comparisonTable').innerHTML = `
         <thead>
-            <tr>
-                <th onclick="sortTable('num')" style="cursor: pointer;">Nº${getSortIndicator('num')}</th>
-                <th onclick="sortTable('name')" style="cursor: pointer;">Jugador${getSortIndicator('name')}</th>
-                <th onclick="sortTable('partidos')" style="cursor: pointer;">Partidos${getSortIndicator('partidos')}</th>
-                <th onclick="sortTable('gols')" style="cursor: pointer;">Goles${getSortIndicator('gols')}</th>
-                <th onclick="sortTable('h+')" style="cursor: pointer;">H+${getSortIndicator('h+')}</th>
-                <th onclick="sortTable('penalty')" style="cursor: pointer;">Penalty${getSortIndicator('penalty')}</th>
-                <th onclick="sortTable('contra')" style="cursor: pointer;">Contra${getSortIndicator('contra')}</th>
-                <th onclick="sortTable('boya')" style="cursor: pointer;">Boya${getSortIndicator('boya')}</th>
-                <th onclick="sortTable('normal')" style="cursor: pointer;">Normal${getSortIndicator('normal')}</th>
-                <th onclick="sortTable('exclusions')" style="cursor: pointer;">Exclusiones${getSortIndicator('exclusions')}</th>
-                <th onclick="sortTable('parades')" style="cursor: pointer;">🧤 Parades${getSortIndicator('parades')}</th>
-                <th onclick="sortTable('assistencies')" style="cursor: pointer;">🎯 Assist${getSortIndicator('assistencies')}</th>
-				<th onclick="sortTable('infraccions2m')" style="cursor: pointer;">📏 2m${getSortIndicator('infraccions2m')}</th>
-                <th onclick="sortTable('robatoris')" style="cursor: pointer;">🛡️ Rob${getSortIndicator('robatoris')}</th>
-                <th onclick="sortTable('blocks')" style="cursor: pointer;">🚫 Blocks${getSortIndicator('blocks')}</th>
-                <th onclick="sortTable('perdues')" style="cursor: pointer;">❌ Pèrd${getSortIndicator('perdues')}</th>
-                <th onclick="sortTable('faltesRebudes')" style="cursor: pointer;">⚠️ FR${getSortIndicator('faltesRebudes')}</th>
-                <th onclick="sortTable('xutsFallats')" style="cursor: pointer;">🚫 Xuts${getSortIndicator('xutsFallats')}</th>
-                <th onclick="sortTable('penaltyMissed')" style="cursor: pointer;">Pen. Fallados${getSortIndicator('penaltyMissed')}</th>
-                <th onclick="sortTable('eficienciaTir')" style="cursor: pointer;">🎯 Efic. Tir${getSortIndicator('eficienciaTir')}</th>
-                <th onclick="sortTable('mediaGols')" style="cursor: pointer;">Media Goles/P${getSortIndicator('mediaGols')}</th>
-                <th onclick="sortTable('valor')" style="cursor: pointer;">⭐ Valor${getSortIndicator('valor')}</th>
-            </tr>
-        </thead>
+    <tr>
+        <th onclick="sortTable('num')" style="cursor: pointer;">Nº${getSortIndicator('num')}</th>
+        <th onclick="sortTable('name')" style="cursor: pointer;">Jugador${getSortIndicator('name')}</th>
+        <th onclick="sortTable('partidos')" style="cursor: pointer;">Partidos${getSortIndicator('partidos')}</th>
+        <th onclick="sortTable('gols')" style="cursor: pointer;">Goles${getSortIndicator('gols')}</th>
+        <th onclick="sortTable('h+')" style="cursor: pointer;">H+${getSortIndicator('h+')}</th>
+        <th onclick="sortTable('penalty')" style="cursor: pointer;">Penalty${getSortIndicator('penalty')}</th>
+        <th onclick="sortTable('contra')" style="cursor: pointer;">Contra${getSortIndicator('contra')}</th>
+        <th onclick="sortTable('boya')" style="cursor: pointer;">Boya${getSortIndicator('boya')}</th>
+        <th onclick="sortTable('normal')" style="cursor: pointer;">Normal${getSortIndicator('normal')}</th>
+        <th onclick="sortTable('parades')" style="cursor: pointer;">🧤 Parades${getSortIndicator('parades')}</th>
+        <th onclick="sortTable('assistencies')" style="cursor: pointer;">🎯 Assist${getSortIndicator('assistencies')}</th>
+        <th onclick="sortTable('robatoris')" style="cursor: pointer;">🛡️ Rob${getSortIndicator('robatoris')}</th>
+        <th onclick="sortTable('blocks')" style="cursor: pointer;">🚫 Blocks${getSortIndicator('blocks')}</th>
+        <th onclick="sortTable('faltesRebudes')" style="cursor: pointer;">⚠️ FR${getSortIndicator('faltesRebudes')}</th>
+        <th onclick="sortTable('exclusions')" style="cursor: pointer;">Exclusiones${getSortIndicator('exclusions')}</th>
+        <th onclick="sortTable('infraccions2m')" style="cursor: pointer;">📏 2m${getSortIndicator('infraccions2m')}</th>
+        <th onclick="sortTable('contrafaltes')" style="cursor: pointer;">⚠️ CF${getSortIndicator('contrafaltes')}</th>
+        <th onclick="sortTable('perdues')" style="cursor: pointer;">❌ Pèrd${getSortIndicator('perdues')}</th>
+        <th onclick="sortTable('xutsFallats')" style="cursor: pointer;">🚫 XutsF${getSortIndicator('xutsFallats')}</th>
+        <th onclick="sortTable('penaltyMissed')" style="cursor: pointer;">Pen. Fallados${getSortIndicator('penaltyMissed')}</th>
+        <th onclick="sortTable('eficienciaTir')" style="cursor: pointer;">🎯 Efic. Tir${getSortIndicator('eficienciaTir')}</th>
+        <th onclick="sortTable('mediaGols')" style="cursor: pointer;">Media Goles/P${getSortIndicator('mediaGols')}</th>
+        <th onclick="sortTable('valor')" style="cursor: pointer;">⭐ Valor${getSortIndicator('valor')}</th>
+    </tr>
+</thead>
         <tbody>
             ${players.map(p => {
                 const totalBlocks = (p.blocks || 0) + (p.blocatges || 0);
@@ -7746,6 +7777,7 @@ function renderComparisonTable(players) {
     goalTypes: p.goalTypes,
     assistencies: p.assistencies,
     infraccions2m: p.infraccions2m || 0,  // ✅ AFEGEIX
+	contrafaltes: p.contrafaltes || 0,
     robatoris: p.robatoris,
     blocatges: totalBlocks,
     parades: p.parades,
@@ -7761,29 +7793,30 @@ function renderComparisonTable(players) {
                 
                 return `
                 <tr>
-                    <td><div class="player-num" style="width: 30px; height: 30px; font-size: 12px;">${p.num}</div></td>
-                    <td><strong>${p.name}</strong></td>
-                    <td>${p.partidos}</td>
-                    <td><strong style="color: #fde047;">${p.gols}</strong></td>
-                    <td>${p.goalTypes['h+'] || 0}</td>
-                    <td>${p.goalTypes.penalty || 0}</td>
-                    <td>${p.goalTypes.contra || 0}</td>
-                    <td>${p.goalTypes.boya || 0}</td>
-                    <td>${p.goalTypes.normal || 0}</td>
-                    <td>${p.exclusions}</td>
-                    <td style="color: #8b5cf6; font-weight: bold;">${p.parades || 0}</td>
-                    <td style="color: #22c55e; font-weight: bold;">${p.assistencies || 0}</td>
-					<td style="color: #fb923c; font-weight: bold;">${p.infraccions2m || 0}</td>
-                    <td style="color: #06b6d4; font-weight: bold;">${p.robatoris || 0}</td>
-                    <td style="color: #a78bfa; font-weight: bold;">${totalBlocks}</td>
-                    <td style="color: #ef4444; font-weight: bold;">${p.perdues || 0}</td>
-                    <td style="color: #fbbf24; font-weight: bold;">${p.faltesRebudes || 0}</td>
-                    <td style="color: #f97316; font-weight: bold;">${p.xutsFallats || 0}</td>
-                    <td style="color: ${(p.penaltyMissed || 0) > 0 ? '#ef4444' : '#22c55e'}; font-weight: bold;">${p.penaltyMissed || 0}</td>
-                    <td style="color: ${eficColor}; font-weight: bold;">${efic.toFixed(1)}%</td>
-                    <td>${mediaGols.toFixed(1)}</td>
-                    <td style="color: ${valorColor}; font-weight: bold;">${valor.toFixed(1)}</td>
-                </tr>
+    <td><div class="player-num" style="width: 30px; height: 30px; font-size: 12px;">${p.num}</div></td>
+    <td><strong>${p.name}</strong></td>
+    <td>${p.partidos}</td>
+    <td><strong style="color: #fde047;">${p.gols}</strong></td>
+    <td>${p.goalTypes['h+'] || 0}</td>
+    <td>${p.goalTypes.penalty || 0}</td>
+    <td>${p.goalTypes.contra || 0}</td>
+    <td>${p.goalTypes.boya || 0}</td>
+    <td>${p.goalTypes.normal || 0}</td>
+    <td style="color: #8b5cf6; font-weight: bold;">${p.parades || 0}</td>
+    <td style="color: #22c55e; font-weight: bold;">${p.assistencies || 0}</td>
+    <td style="color: #06b6d4; font-weight: bold;">${p.robatoris || 0}</td>
+    <td style="color: #a78bfa; font-weight: bold;">${totalBlocks}</td>
+    <td style="color: #fbbf24; font-weight: bold;">${p.faltesRebudes || 0}</td>
+    <td style="color: #ef4444; font-weight: bold;">${p.exclusions}</td>
+    <td style="color: #fb923c; font-weight: bold;">${p.infraccions2m || 0}</td>
+    <td style="color: #fbbf24; font-weight: bold;">${p.contrafaltes || 0}</td>
+    <td style="color: #ef4444; font-weight: bold;">${p.perdues || 0}</td>
+    <td style="color: #f97316; font-weight: bold;">${p.xutsFallats || 0}</td>
+    <td style="color: ${(p.penaltyMissed || 0) > 0 ? '#ef4444' : '#22c55e'}; font-weight: bold;">${p.penaltyMissed || 0}</td>
+    <td style="color: ${eficColor}; font-weight: bold;">${efic.toFixed(1)}%</td>
+    <td>${mediaGols.toFixed(1)}</td>
+    <td style="color: ${valorColor}; font-weight: bold;">${valor.toFixed(1)}</td>
+</tr>
                 `;
             }).join('')}
         </tbody>

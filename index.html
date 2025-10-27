@@ -188,7 +188,93 @@ body.theme-juvenil {
     text-align: left;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+/* Visualització Piscina */
+.pool-container {
+    background: linear-gradient(180deg, rgba(6, 182, 212, 0.3) 0%, rgba(8, 145, 178, 0.3) 100%);
+    border: 3px solid #0891b2;
+    border-radius: 20px;
+    padding: 30px 20px;
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
 
+.pool-goal {
+    background: rgba(239, 68, 68, 0.3);
+    border: 2px solid #ef4444;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.pool-players {
+    display: grid;
+    gap: 15px;
+}
+
+.pool-goalkeeper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.pool-field-players {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    justify-items: center;
+}
+
+.pool-player {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #22d3ee;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    min-width: 100px;
+    transition: all 0.3s;
+}
+
+.pool-player:hover {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.pool-player-num {
+    background: #06b6d4;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 auto 8px;
+}
+
+.pool-player-name {
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 4px;
+}
+
+.pool-player-stat {
+    font-size: 10px;
+    color: #bae6fd;
+}
+
+.pool-midfield {
+    border-top: 2px dashed rgba(255, 255, 255, 0.3);
+    padding-top: 15px;
+    margin-top: 15px;
+    text-align: center;
+    color: #bae6fd;
+    font-size: 10px;
+}
 .stats-table th {
     background: rgba(6, 182, 212, 0.3);
     font-weight: bold;
@@ -964,7 +1050,14 @@ body.theme-juvenil {
         </h2>
         <div style="height: 3px; background: linear-gradient(to right, transparent, #22d3ee, transparent); margin-top: 15px;"></div>
     </div>
-
+<!-- PISCINA: 7 Jugadors més utilitzats -->
+    <div class="card">
+        <h2 class="section-title">🏊‍♂️ Els 7 Jugadors Més Utilitzats</h2>
+        <p style="font-size: 12px; color: #bae6fd; margin-bottom: 15px;">
+            Alineació basada en el temps total jugat en tots els partits
+        </p>
+        <div id="globalTimePoolContainer"></div>
+    </div>
     <!-- 1. Tiempo Total por Jugador -->
     <div class="card">
         <h2 class="section-title">📊 Tiempo Total Jugado por Jugador</h2>
@@ -1436,9 +1529,9 @@ body.theme-juvenil {
     
     <!-- Patrones por Cuarto - MOVIDO AL FINAL -->
     <div class="card">
-        <h2 class="section-title">⏰ Patrones por Cuarto</h2>
+        <h2 class="section-title">⏰ Equipo tipo titular</h2>
         <p style="font-size: 12px; color: #bae6fd; margin-bottom: 15px;">
-            ¿En qué cuarto es más titular cada jugador?
+            ¿Que jugadores han sido más veces titulares?
         </p>
         <div id="quarterPatternsGrid" class="stats-grid"></div>
     </div>
@@ -2673,30 +2766,40 @@ function sortSingleMatchTable(column) {
        return singleMatchSortOrder === 'desc' ? ' ▼' : ' ▲';
    };
     table.innerHTML = `
-       <thead>
-   <tr>
-       <th onclick="sortSingleMatchTable('num')" style="cursor: pointer;">Nº${getSortIndicator('num')}</th>
-       <th onclick="sortSingleMatchTable('nom')" style="cursor: pointer;">Jugador${getSortIndicator('nom')}</th>
-       <th onclick="sortSingleMatchTable('gols')" style="cursor: pointer;">Gols${getSortIndicator('gols')}</th>
-       <th onclick="sortSingleMatchTable('hPlus')" style="cursor: pointer;">H+${getSortIndicator('hPlus')}</th>
-       <th onclick="sortSingleMatchTable('penalty')" style="cursor: pointer;">Pen${getSortIndicator('penalty')}</th>
-       <th onclick="sortSingleMatchTable('contra')" style="cursor: pointer;">Con${getSortIndicator('contra')}</th>
-       <th onclick="sortSingleMatchTable('boya')" style="cursor: pointer;">Boy${getSortIndicator('boya')}</th>
-       <th onclick="sortSingleMatchTable('normal')" style="cursor: pointer;">Nor${getSortIndicator('normal')}</th>
-       <th onclick="sortSingleMatchTable('parades')" style="cursor: pointer;">🧤 Par${getSortIndicator('parades')}</th>
-       <th onclick="sortSingleMatchTable('assistencies')" style="cursor: pointer;">🎯 Ast${getSortIndicator('assistencies')}</th>
-       <th onclick="sortSingleMatchTable('robatoris')" style="cursor: pointer;">🛡️ Rob${getSortIndicator('robatoris')}</th>
-       <th onclick="sortSingleMatchTable('blocks')" style="cursor: pointer;">🚫 Blk${getSortIndicator('blocks')}</th>
-       <th onclick="sortSingleMatchTable('faltesRebudes')" style="cursor: pointer;">⚠️ FR${getSortIndicator('faltesRebudes')}</th>
-       <th onclick="sortSingleMatchTable('exclusions')" style="cursor: pointer;">Exc${getSortIndicator('exclusions')}</th>
-       <th onclick="sortSingleMatchTable('infraccions2m')" style="cursor: pointer;">📏 2m${getSortIndicator('infraccions2m')}</th>
-       <th onclick="sortSingleMatchTable('contrafaltes')" style="cursor: pointer;">⚠️ ContraF${getSortIndicator('contrafaltes')}</th>
-       <th onclick="sortSingleMatchTable('perdues')" style="cursor: pointer;">❌ Pèr${getSortIndicator('perdues')}</th>
-       <th onclick="sortSingleMatchTable('xutsFallats')" style="cursor: pointer;">XutsF${getSortIndicator('xutsFallats')}</th>
-       <th onclick="sortSingleMatchTable('penaltyMissed')" style="cursor: pointer;">PenF${getSortIndicator('penaltyMissed')}</th>
-       <th onclick="sortSingleMatchTable('eficiencia')" style="cursor: pointer;">Efic%${getSortIndicator('eficiencia')}</th>
-       <th onclick="sortSingleMatchTable('valor')" style="cursor: pointer;">⭐ Valor${getSortIndicator('valor')}</th>
-   </tr>
+     <thead>
+    <tr>
+        <th rowspan="2" onclick="sortSingleMatchTable('num')" style="cursor: pointer; vertical-align: middle;">Nº${getSortIndicator('num')}</th>
+        <th rowspan="2" onclick="sortSingleMatchTable('nom')" style="cursor: pointer; vertical-align: middle;">Jugador${getSortIndicator('nom')}</th>
+        <th rowspan="2" onclick="sortSingleMatchTable('gols')" style="cursor: pointer; vertical-align: middle;">Gols${getSortIndicator('gols')}</th>
+        <th colspan="5" style="background: rgba(34, 211, 238, 0.2); text-align: center;" title="Tipus de Gols">🎯 TIPUS GOLS</th>
+        <th colspan="6" style="background: rgba(34, 197, 94, 0.2); text-align: center;" title="Accions Positives">✅ POSITIVES</th>
+        <th colspan="6" style="background: rgba(239, 68, 68, 0.2); text-align: center;" title="Accions Negatives">❌ NEGATIVES</th>
+        <th rowspan="2" onclick="sortSingleMatchTable('eficiencia')" style="cursor: pointer; vertical-align: middle;">Efic%${getSortIndicator('eficiencia')}</th>
+        <th rowspan="2" onclick="sortSingleMatchTable('valor')" style="cursor: pointer; vertical-align: middle;">⭐ Valor${getSortIndicator('valor')}</th>
+    </tr>
+    <tr style="font-size: 11px;">
+        <!-- Tipus de Gols (5 columnes) -->
+        <th onclick="sortSingleMatchTable('hPlus')" style="cursor: pointer;">H+${getSortIndicator('hPlus')}</th>
+        <th onclick="sortSingleMatchTable('penalty')" style="cursor: pointer;">Pen${getSortIndicator('penalty')}</th>
+        <th onclick="sortSingleMatchTable('contra')" style="cursor: pointer;">Con${getSortIndicator('contra')}</th>
+        <th onclick="sortSingleMatchTable('boya')" style="cursor: pointer;">Boy${getSortIndicator('boya')}</th>
+        <th onclick="sortSingleMatchTable('normal')" style="cursor: pointer;">Nor${getSortIndicator('normal')}</th>
+        
+        <!-- Positives (6 columnes) -->
+        <th onclick="sortSingleMatchTable('parades')" style="cursor: pointer;">🧤 Par${getSortIndicator('parades')}</th>
+        <th onclick="sortSingleMatchTable('assistencies')" style="cursor: pointer;">🎯 Ast${getSortIndicator('assistencies')}</th>
+        <th onclick="sortSingleMatchTable('robatoris')" style="cursor: pointer;">🛡️ Rob${getSortIndicator('robatoris')}</th>
+        <th onclick="sortSingleMatchTable('blocks')" style="cursor: pointer;">🚫 Blk${getSortIndicator('blocks')}</th>
+        <th onclick="sortSingleMatchTable('faltesRebudes')" style="cursor: pointer;">⚠️ FR${getSortIndicator('faltesRebudes')}</th>
+        <th onclick="sortSingleMatchTable('exclusions')" style="cursor: pointer;">Exc${getSortIndicator('exclusions')}</th>
+        
+        <!-- Negatives (6 columnes) -->
+        <th onclick="sortSingleMatchTable('infraccions2m')" style="cursor: pointer;">📏 2m${getSortIndicator('infraccions2m')}</th>
+        <th onclick="sortSingleMatchTable('contrafaltes')" style="cursor: pointer;">⚠️ CF${getSortIndicator('contrafaltes')}</th>
+        <th onclick="sortSingleMatchTable('perdues')" style="cursor: pointer;">❌ Pèr${getSortIndicator('perdues')}</th>
+        <th onclick="sortSingleMatchTable('xutsFallats')" style="cursor: pointer;">🚫 Xut${getSortIndicator('xutsFallats')}</th>
+        <th onclick="sortSingleMatchTable('penaltyMissed')" style="cursor: pointer;">PenF${getSortIndicator('penaltyMissed')}</th>
+    </tr>
 </thead>
         <tbody>
             ${players.map((p, index) => {
@@ -2705,30 +2808,34 @@ function sortSingleMatchTable(column) {
                                  index === 1 ? 'background: rgba(192, 192, 192, 0.2);' :
                                  index === 2 ? 'background: rgba(205, 127, 50, 0.2);' : '';
                 
-                return `
+                 return `
                     <tr style="${rankColor}">
-    <td>${p.num}</td>
-    <td><strong>${p.nom.split(' ')[0]}</strong></td>
-    <td>${p.gols}</td>
-    <td>${p.hPlus}</td>
-    <td>${p.penalty}</td>
-    <td>${p.contra}</td>
-    <td>${p.boya}</td>
-    <td>${p.normal}</td>
-    <td>${p.parades}</td>
-    <td>${p.assistencies}</td>
-    <td>${p.robatoris}</td>
-    <td>${p.blocks}</td>
-    <td>${p.faltesRebudes}</td>
-    <td>${p.exclusions}</td>
-    <td>${p.infraccions2m}</td>
-    <td>${p.contrafaltes}</td>
-    <td>${p.perdues}</td>
-    <td>${p.xutsFallats}</td>
-    <td>${p.penaltyMissed}</td>
-    <td>${p.eficiencia}%</td>
-    <td><strong>${p.valor}</strong></td>
-</tr>
+                        <td>${p.num}</td>
+                        <td><strong>${p.nom.split(' ')[0]}</strong></td>
+                        <td>${p.gols}</td>
+                        <!-- Tipus Gols (5) -->
+                        <td>${p.hPlus}</td>
+                        <td>${p.penalty}</td>
+                        <td>${p.contra}</td>
+                        <td>${p.boya}</td>
+                        <td>${p.normal}</td>
+                        <!-- Positives (6) -->
+                        <td>${p.parades}</td>
+                        <td>${p.assistencies}</td>
+                        <td>${p.robatoris}</td>
+                        <td>${p.blocks}</td>
+                        <td>${p.faltesRebudes}</td>
+                        <td>${p.exclusions}</td>
+                        <!-- Negatives (6) -->
+                        <td>${p.infraccions2m}</td>
+                        <td>${p.contrafaltes}</td>
+                        <td>${p.perdues}</td>
+                        <td>${p.xutsFallats}</td>
+                        <td>${p.penaltyMissed}</td>
+                        <!-- Efic i Valor -->
+                        <td>${p.eficiencia}%</td>
+                        <td><strong>${p.valor}</strong></td>
+                    </tr>
                 `;
             }).join('')}
         </tbody>
@@ -4289,15 +4396,16 @@ function renderConsistencyChart() {
 });
 }
 
-// NUEVA FUNCIÓN: Patrones por Cuarto
+// NUEVA FUNCIÓN: Titulars més habituals en forma de piscina
 function renderQuarterPatterns() {
     const container = document.getElementById('quarterPatternsGrid');
     if (!container) return;
     
     if (allMatches.length === 0) return;
     
-    const playerQuarters = {};
+    const playerStarts = {};
     
+    // Comptar quantes vegades cada jugador ha estat titular
     allMatches.forEach(match => {
         ['q1', 'q2', 'q3', 'q4'].forEach(q => {
             const lineup = match.lineups[q] || [];
@@ -4305,63 +4413,83 @@ function renderQuarterPatterns() {
                 const player = match.jugadors.find(j => j.numero === playerNum);
                 if (player) {
                     const playerName = player.nom.trim();
-                    if (!playerQuarters[playerName]) {
-                        playerQuarters[playerName] = {
+                    if (!playerStarts[playerName]) {
+                        playerStarts[playerName] = {
                             num: player.numero,
                             name: playerName,
-                            q1: 0, q2: 0, q3: 0, q4: 0
+                            starts: 0
                         };
                     }
-                    playerQuarters[playerName][q]++;
+                    playerStarts[playerName].starts++;
                 }
             });
         });
     });
     
-    const players = Object.values(playerQuarters)
-        .sort((a, b) => b.q1 + b.q2 + b.q3 + b.q4 - (a.q1 + a.q2 + a.q3 + a.q4));
+    // Ordenar per vegades titular
+    const sortedPlayers = Object.values(playerStarts)
+        .sort((a, b) => b.starts - a.starts);
     
-    container.innerHTML = players.map(p => {
-        const quarters = [
-            { name: '1Q', value: p.q1 },
-            { name: '2Q', value: p.q2 },
-            { name: '3Q', value: p.q3 },
-            { name: '4Q', value: p.q4 }
-        ];
-        const maxQuarter = quarters.reduce((max, q) => q.value > max.value ? q : max, quarters[0]);
-        const total = p.q1 + p.q2 + p.q3 + p.q4;
-        
-        let pattern = '';
-        if (p.q1 + p.q2 > p.q3 + p.q4) {
-            pattern = '🔵 Inicio fuerte';
-        } else if (p.q3 + p.q4 > p.q1 + p.q2) {
-            pattern = '🔴 Final de partido';
-        } else {
-            pattern = '⚪ Equilibrado';
-        }
-        
-        return `
-            <div class="player-stat">
-                <div class="player-info">
-                    <div class="player-num">${p.num}</div>
-                    <div>
-                        <div class="player-name">${p.name}</div>
-                        <div style="font-size: 10px; color: #bae6fd; margin-top: 2px;">
-                            ${pattern}
+    // Agafar els 7 més habituals (1 porter + 6 jugadors)
+    const goalkeeper = sortedPlayers.find(p => p.num === 1 || p.num === 13) || sortedPlayers[0];
+    const fieldPlayers = sortedPlayers
+        .filter(p => p.num !== goalkeeper.num)
+        .slice(0, 6);
+    
+    const totalQuarters = allMatches.length * 4;
+    
+    container.innerHTML = `
+        <div class="pool-container">
+            <div class="pool-goal">
+                <div style="font-size: 12px; color: #fca5a5; font-weight: bold;">PORTERIA</div>
+            </div>
+            
+            <div class="pool-players">
+                <!-- Porter -->
+                <div class="pool-goalkeeper">
+                    <div class="pool-player">
+                        <div class="pool-player-num" style="background: #8b5cf6;">${goalkeeper.num}</div>
+                        <div class="pool-player-name">${goalkeeper.name.split(' ')[0]}</div>
+                        <div class="pool-player-stat">
+                            ${goalkeeper.starts} titularitats
+                        </div>
+                        <div class="pool-player-stat" style="color: #fde047; font-weight: bold;">
+                            ${((goalkeeper.starts / totalQuarters) * 100).toFixed(0)}%
                         </div>
                     </div>
                 </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 12px; color: #fde047; font-weight: bold;">
-                        Prefiere: ${maxQuarter.name} (${maxQuarter.value}x)
-                    </div>
-                    <div style="font-size: 10px; color: #bae6fd; margin-top: 2px;">
-                        Total: ${total} titularidades
-                    </div>
+                
+                <!-- Jugadors de camp -->
+                <div class="pool-field-players">
+                    ${fieldPlayers.map((p, index) => {
+                        const percentage = ((p.starts / totalQuarters) * 100).toFixed(0);
+                        const opacity = 0.5 + (percentage / 100) * 0.5; // Més opac = més titular
+                        return `
+                            <div class="pool-player" style="opacity: ${opacity};">
+                                <div class="pool-player-num">${p.num}</div>
+                                <div class="pool-player-name">${p.name.split(' ')[0]}</div>
+                                <div class="pool-player-stat">
+                                    ${p.starts} titular${p.starts !== 1 ? 's' : ''}
+                                </div>
+                                <div class="pool-player-stat" style="color: #fde047; font-weight: bold;">
+                                    ${percentage}%
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
             </div>
-        `;
-    }).join('');
+            
+            <div class="pool-midfield">
+                ━━━━━━━━━ MIG CAMP ━━━━━━━━━
+            </div>
+        </div>
+        
+        <p style="font-size: 12px; color: #bae6fd; margin-top: 15px; text-align: center;">
+            🏊‍♂️ Els 7 jugadors que més vegades han estat titulars<br>
+            Total de quarts analitzats: ${totalQuarters}
+        </p>
+    `;
 }
 
 // NUEVA FUNCIÓN: Tabla de Rendimiento - CORREGIDA
@@ -5364,43 +5492,103 @@ function renderPlayingTimes() {
     
     const maxTime = 32 * 60; // 32 minuts màxim
     
+    // Els 7 amb més minuts
+    const topPlayers = players.slice(0, 7);
+    const goalkeeper = topPlayers.find(p => p.num === 1 || p.num === 13) || topPlayers[0];
+    const fieldPlayers = topPlayers
+        .filter(p => p.num !== goalkeeper.num)
+        .slice(0, 6);
+    
     container.innerHTML = `
-        <table class="stats-table">
-            <thead>
-                <tr>
-                    <th>Nº</th>
-                    <th>Jugador</th>
-                    <th>1Q</th>
-                    <th>2Q</th>
-                    <th>3Q</th>
-                    <th>4Q</th>
-                    <th>TOTAL</th>
-                    <th>%</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${players.map(p => {
-                    const percentage = ((p.totalTime / maxTime) * 100).toFixed(1);
-                    const color = percentage >= 75 ? '#22c55e' : percentage >= 50 ? '#fbbf24' : '#f97316';
-                    
-                    return `
-                        <tr>
-                            <td><div class="player-num" style="width: 30px; height: 30px; font-size: 12px;">${p.num}</div></td>
-                            <td><strong>${p.name}</strong></td>
-                            <td>${formatTime(p.q1)}</td>
-                            <td>${formatTime(p.q2)}</td>
-                            <td>${formatTime(p.q3)}</td>
-                            <td>${formatTime(p.q4)}</td>
-                            <td><strong style="color: #fde047;">${formatTime(p.totalTime)}</strong></td>
-                            <td><strong style="color: ${color};">${percentage}%</strong></td>
-                        </tr>
-                    `;
-                }).join('')}
-            </tbody>
-        </table>
-        <p style="font-size: 12px; color: #bae6fd; margin-top: 12px; text-align: center;">
+        <div class="pool-container">
+            <div class="pool-goal">
+                <div style="font-size: 12px; color: #fca5a5; font-weight: bold;">PORTERIA</div>
+            </div>
+            
+            <div class="pool-players">
+                <!-- Porter -->
+                <div class="pool-goalkeeper">
+                    <div class="pool-player">
+                        <div class="pool-player-num" style="background: #8b5cf6;">${goalkeeper.num}</div>
+                        <div class="pool-player-name">${goalkeeper.name.split(' ')[0]}</div>
+                        <div class="pool-player-stat">
+                            ${formatTime(goalkeeper.totalTime)}
+                        </div>
+                        <div class="pool-player-stat" style="color: #fde047; font-weight: bold;">
+                            ${((goalkeeper.totalTime / maxTime) * 100).toFixed(0)}%
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Jugadors de camp -->
+                <div class="pool-field-players">
+                    ${fieldPlayers.map(p => {
+                        const percentage = ((p.totalTime / maxTime) * 100).toFixed(0);
+                        const opacity = 0.5 + (parseFloat(percentage) / 200);
+                        return `
+                            <div class="pool-player" style="opacity: ${opacity};">
+                                <div class="pool-player-num">${p.num}</div>
+                                <div class="pool-player-name">${p.name.split(' ')[0]}</div>
+                                <div class="pool-player-stat">
+                                    ${formatTime(p.totalTime)}
+                                </div>
+                                <div class="pool-player-stat" style="color: #fde047; font-weight: bold;">
+                                    ${percentage}%
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+            
+            <div class="pool-midfield">
+                ━━━━━━━━━ MIG CAMP ━━━━━━━━━
+            </div>
+        </div>
+        
+        <p style="font-size: 12px; color: #bae6fd; margin-top: 15px; text-align: center;">
+            🏊‍♂️ Els 7 jugadors amb més temps de joc en aquest partit<br>
             ⏱️ Temps màxim: 32 minuts (4 quarts × 8 minuts)
         </p>
+        
+        <details style="margin-top: 20px;">
+            <summary style="cursor: pointer; color: #22d3ee; font-weight: bold; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                📊 Veure taula completa de temps
+            </summary>
+            <table class="stats-table" style="margin-top: 15px;">
+                <thead>
+                    <tr>
+                        <th>Nº</th>
+                        <th>Jugador</th>
+                        <th>1Q</th>
+                        <th>2Q</th>
+                        <th>3Q</th>
+                        <th>4Q</th>
+                        <th>TOTAL</th>
+                        <th>%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${players.map(p => {
+                        const percentage = ((p.totalTime / maxTime) * 100).toFixed(1);
+                        const color = percentage >= 75 ? '#22c55e' : percentage >= 50 ? '#fbbf24' : '#f97316';
+                        
+                        return `
+                            <tr>
+                                <td><div class="player-num" style="width: 30px; height: 30px; font-size: 12px;">${p.num}</div></td>
+                                <td><strong>${p.name}</strong></td>
+                                <td>${formatTime(p.q1)}</td>
+                                <td>${formatTime(p.q2)}</td>
+                                <td>${formatTime(p.q3)}</td>
+                                <td>${formatTime(p.q4)}</td>
+                                <td><strong style="color: #fde047;">${formatTime(p.totalTime)}</strong></td>
+                                <td><strong style="color: ${color};">${percentage}%</strong></td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        </details>
     `;
 }
 // ============================================
@@ -5457,7 +5645,8 @@ function displayTimeStats() {
     
     console.log('Calling renderTotalTimeChart...');
     renderTotalTimeChart();
-    
+    console.log('Calling renderGlobalTimePool...');
+	renderGlobalTimePool();  // ← AFEGEIX AQUESTA LÍNIA
     console.log('Calling renderTimeHeatmapTable...');
     renderTimeHeatmapTable();
    
@@ -5473,7 +5662,109 @@ function displayTimeStats() {
     
     console.log('=== displayTimeStats finished ===');
 }
-
+function renderGlobalTimePool() {
+    const container = document.getElementById('globalTimePoolContainer');
+    if (!container || matchesWithTime.length === 0) return;
+    
+    // Calcular temps total per jugador
+    const playerTotalTimes = {};
+    
+    matchesWithTime.forEach(match => {
+        const playerTimes = calculateMatchPlayingTimes(match);
+        Object.values(playerTimes).forEach(pt => {
+            const key = `${pt.num}|${pt.name}`;
+            if (!playerTotalTimes[key]) {
+                playerTotalTimes[key] = {
+                    num: pt.num,
+                    name: pt.name,
+                    totalTime: 0,
+                    matches: 0
+                };
+            }
+            playerTotalTimes[key].totalTime += pt.totalTime;
+            playerTotalTimes[key].matches++;
+        });
+    });
+    
+    // Ordenar per temps total
+    const sortedPlayers = Object.values(playerTotalTimes)
+        .sort((a, b) => b.totalTime - a.totalTime);
+    
+    // Els 7 amb més minuts
+    const topPlayers = sortedPlayers.slice(0, 7);
+    const goalkeeper = topPlayers.find(p => p.num === 1 || p.num === 13) || topPlayers[0];
+    const fieldPlayers = topPlayers
+        .filter(p => p.num !== goalkeeper.num)
+        .slice(0, 6);
+    
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    const maxPossibleTime = matchesWithTime.length * 32 * 60; // Tots els partits × 32 min
+    
+    container.innerHTML = `
+        <div class="pool-container">
+            <div class="pool-goal">
+                <div style="font-size: 12px; color: #fca5a5; font-weight: bold;">PORTERIA</div>
+            </div>
+            
+            <div class="pool-players">
+                <!-- Porter -->
+                <div class="pool-goalkeeper">
+                    <div class="pool-player">
+                        <div class="pool-player-num" style="background: #8b5cf6;">${goalkeeper.num}</div>
+                        <div class="pool-player-name">${goalkeeper.name.split(' ')[0]}</div>
+                        <div class="pool-player-stat">
+                            ${formatTime(goalkeeper.totalTime)}
+                        </div>
+                        <div class="pool-player-stat" style="color: #fde047; font-weight: bold;">
+                            ${goalkeeper.matches} partits
+                        </div>
+                        <div class="pool-player-stat" style="color: #bae6fd; font-size: 9px;">
+                            ${formatTime(Math.round(goalkeeper.totalTime / goalkeeper.matches))}/partit
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Jugadors de camp -->
+                <div class="pool-field-players">
+                    ${fieldPlayers.map(p => {
+                        const avgTimePerMatch = p.totalTime / p.matches;
+                        const percentage = ((avgTimePerMatch / (32 * 60)) * 100).toFixed(0);
+                        const opacity = 0.5 + (parseFloat(percentage) / 200);
+                        return `
+                            <div class="pool-player" style="opacity: ${opacity};">
+                                <div class="pool-player-num">${p.num}</div>
+                                <div class="pool-player-name">${p.name.split(' ')[0]}</div>
+                                <div class="pool-player-stat">
+                                    ${formatTime(p.totalTime)}
+                                </div>
+                                <div class="pool-player-stat" style="color: #fde047; font-weight: bold;">
+                                    ${p.matches} partits
+                                </div>
+                                <div class="pool-player-stat" style="color: #bae6fd; font-size: 9px;">
+                                    ${formatTime(Math.round(avgTimePerMatch))}/partit
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+            
+            <div class="pool-midfield">
+                ━━━━━━━━━ MIG CAMP ━━━━━━━━━
+            </div>
+        </div>
+        
+        <p style="font-size: 12px; color: #bae6fd; margin-top: 15px; text-align: center;">
+            🏊‍♂️ Els 7 jugadors amb més temps acumulat<br>
+            📊 Partits analitzats: ${matchesWithTime.length}
+        </p>
+    `;
+}
 function populatePlayerTimeFilter() {
     const select = document.getElementById('filterPlayerTime');
     
@@ -7737,31 +8028,41 @@ function renderComparisonTable(players) {
     };
     
     document.getElementById('comparisonTable').innerHTML = `
-        <thead>
+      <thead>
     <tr>
-        <th onclick="sortTable('num')" style="cursor: pointer;">Nº${getSortIndicator('num')}</th>
-        <th onclick="sortTable('name')" style="cursor: pointer;">Jugador${getSortIndicator('name')}</th>
-        <th onclick="sortTable('partidos')" style="cursor: pointer;">Partidos${getSortIndicator('partidos')}</th>
-        <th onclick="sortTable('gols')" style="cursor: pointer;">Goles${getSortIndicator('gols')}</th>
+        <th rowspan="2" onclick="sortTable('num')" style="cursor: pointer; vertical-align: middle;">Nº${getSortIndicator('num')}</th>
+        <th rowspan="2" onclick="sortTable('name')" style="cursor: pointer; vertical-align: middle;">Jugador${getSortIndicator('name')}</th>
+        <th rowspan="2" onclick="sortTable('partidos')" style="cursor: pointer; vertical-align: middle;">Partidos${getSortIndicator('partidos')}</th>
+        <th rowspan="2" onclick="sortTable('gols')" style="cursor: pointer; vertical-align: middle;">Goles${getSortIndicator('gols')}</th>
+        <th colspan="5" style="background: rgba(34, 211, 238, 0.2); text-align: center;" title="Tipus de Gols">🎯 TIPUS GOLS</th>
+        <th colspan="5" style="background: rgba(34, 197, 94, 0.2); text-align: center;" title="Accions Positives">✅ POSITIVES</th>
+        <th colspan="6" style="background: rgba(239, 68, 68, 0.2); text-align: center;" title="Accions Negatives">❌ NEGATIVES</th>
+        <th rowspan="2" onclick="sortTable('eficienciaTir')" style="cursor: pointer; vertical-align: middle;">🎯 Efic.${getSortIndicator('eficienciaTir')}</th>
+        <th rowspan="2" onclick="sortTable('mediaGols')" style="cursor: pointer; vertical-align: middle;">Media G/P${getSortIndicator('mediaGols')}</th>
+        <th rowspan="2" onclick="sortTable('valor')" style="cursor: pointer; vertical-align: middle;">⭐ Valor${getSortIndicator('valor')}</th>
+    </tr>
+    <tr style="font-size: 11px;">
+        <!-- Tipus de Gols (5 columnes) -->
         <th onclick="sortTable('h+')" style="cursor: pointer;">H+${getSortIndicator('h+')}</th>
-        <th onclick="sortTable('penalty')" style="cursor: pointer;">Penalty${getSortIndicator('penalty')}</th>
-        <th onclick="sortTable('contra')" style="cursor: pointer;">Contra${getSortIndicator('contra')}</th>
-        <th onclick="sortTable('boya')" style="cursor: pointer;">Boya${getSortIndicator('boya')}</th>
-        <th onclick="sortTable('normal')" style="cursor: pointer;">Normal${getSortIndicator('normal')}</th>
-        <th onclick="sortTable('parades')" style="cursor: pointer;">🧤 Parades${getSortIndicator('parades')}</th>
-        <th onclick="sortTable('assistencies')" style="cursor: pointer;">🎯 Assist${getSortIndicator('assistencies')}</th>
+        <th onclick="sortTable('penalty')" style="cursor: pointer;">Pen${getSortIndicator('penalty')}</th>
+        <th onclick="sortTable('contra')" style="cursor: pointer;">Con${getSortIndicator('contra')}</th>
+        <th onclick="sortTable('boya')" style="cursor: pointer;">Boy${getSortIndicator('boya')}</th>
+        <th onclick="sortTable('normal')" style="cursor: pointer;">Nor${getSortIndicator('normal')}</th>
+        
+        <!-- Positives (5 columnes) -->
+        <th onclick="sortTable('parades')" style="cursor: pointer;">🧤 Par${getSortIndicator('parades')}</th>
+        <th onclick="sortTable('assistencies')" style="cursor: pointer;">🎯 Ast${getSortIndicator('assistencies')}</th>
         <th onclick="sortTable('robatoris')" style="cursor: pointer;">🛡️ Rob${getSortIndicator('robatoris')}</th>
-        <th onclick="sortTable('blocks')" style="cursor: pointer;">🚫 Blocks${getSortIndicator('blocks')}</th>
+        <th onclick="sortTable('blocks')" style="cursor: pointer;">🚫 Blk${getSortIndicator('blocks')}</th>
         <th onclick="sortTable('faltesRebudes')" style="cursor: pointer;">⚠️ FR${getSortIndicator('faltesRebudes')}</th>
+        
+        <!-- Negatives (6 columnes) -->
         <th onclick="sortTable('exclusions')" style="cursor: pointer;">Exc${getSortIndicator('exclusions')}</th>
         <th onclick="sortTable('infraccions2m')" style="cursor: pointer;">📏 2m${getSortIndicator('infraccions2m')}</th>
-        <th onclick="sortTable('contrafaltes')" style="cursor: pointer;">⚠️ ContraF${getSortIndicator('contrafaltes')}</th>
-        <th onclick="sortTable('perdues')" style="cursor: pointer;">❌ Pèrd${getSortIndicator('perdues')}</th>
-        <th onclick="sortTable('xutsFallats')" style="cursor: pointer;">🚫 XutsF${getSortIndicator('xutsFallats')}</th>
-        <th onclick="sortTable('penaltyMissed')" style="cursor: pointer;">Pen. Fallados${getSortIndicator('penaltyMissed')}</th>
-        <th onclick="sortTable('eficienciaTir')" style="cursor: pointer;">🎯 Efic. Tir${getSortIndicator('eficienciaTir')}</th>
-        <th onclick="sortTable('mediaGols')" style="cursor: pointer;">Media Goles/P${getSortIndicator('mediaGols')}</th>
-        <th onclick="sortTable('valor')" style="cursor: pointer;">⭐ Valor${getSortIndicator('valor')}</th>
+        <th onclick="sortTable('contrafaltes')" style="cursor: pointer;">⚠️ CF${getSortIndicator('contrafaltes')}</th>
+        <th onclick="sortTable('perdues')" style="cursor: pointer;">❌ Pèr${getSortIndicator('perdues')}</th>
+        <th onclick="sortTable('xutsFallats')" style="cursor: pointer;">🚫 Xut${getSortIndicator('xutsFallats')}</th>
+        <th onclick="sortTable('penaltyMissed')" style="cursor: pointer;">PenF${getSortIndicator('penaltyMissed')}</th>
     </tr>
 </thead>
         <tbody>
@@ -8855,7 +9156,15 @@ function calculatePlayerFullStats(player) {
             assists: stats.assistencies || 0,
             exclusions: stats.exclusions || 0,
             steals: stats.robatoris || 0,
-            mvp: isMVP ? '⭐' : ''  // ← Aquí es marca l'MVP
+            saves: stats.parades || 0,
+            blocks: stats.blocks || 0,
+            turnovers: stats.perdues || 0,
+            shotsMissed: stats.xutsFallats || 0,
+            infraccions2m: stats.infraccions2m || 0,
+            contrafaltes: stats.contrafaltes || 0,
+            foulsReceived: stats.faltesRebudes || 0,
+            penaltyMissed: stats.penaltyMissed || 0,
+            mvp: isMVP ? '⭐' : ''
         });
     });
     
@@ -9247,6 +9556,39 @@ function renderPlayerMatchHistory(data) {
         return dateB - dateA;
     });
     
+    // Calcular totals
+    const totals = {
+        goals: 0,
+        assists: 0,
+        exclusions: 0,
+        steals: 0,
+        saves: 0,
+        blocks: 0,
+        turnovers: 0,
+        shotsMissed: 0,
+        infraccions2m: 0,
+        contrafaltes: 0,
+        foulsReceived: 0,
+        penaltyMissed: 0,
+        mvpCount: 0
+    };
+    
+    sortedMatches.forEach(m => {
+        totals.goals += m.goals;
+        totals.assists += m.assists;
+        totals.exclusions += m.exclusions;
+        totals.steals += m.steals;
+        totals.saves += m.saves;
+        totals.blocks += m.blocks;
+        totals.turnovers += m.turnovers;
+        totals.shotsMissed += m.shotsMissed;
+        totals.infraccions2m += m.infraccions2m;
+        totals.contrafaltes += m.contrafaltes;
+        totals.foulsReceived += m.foulsReceived;
+        totals.penaltyMissed += m.penaltyMissed;
+        if (m.mvp === '⭐') totals.mvpCount++;
+    });
+    
     table.innerHTML = `
         <thead>
             <tr>
@@ -9254,11 +9596,28 @@ function renderPlayerMatchHistory(data) {
                 <th>Rival</th>
                 <th>Lloc</th>
                 <th>Min</th>
-                <th>Gols</th>
-                <th>Assist</th>
-                <th>Excl</th>
-                <th>Rob</th>
+                <th style="background: rgba(34, 197, 94, 0.2);" title="Accions Positives" colspan="6">✅ POSITIVES</th>
+                <th style="background: rgba(239, 68, 68, 0.2);" title="Accions Negatives" colspan="6">❌ NEGATIVES</th>
                 <th>MVP</th>
+            </tr>
+            <tr style="font-size: 11px;">
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th title="Gols">⚽ G</th>
+                <th title="Assistències">🎯 A</th>
+                <th title="Robatoris">🛡️ R</th>
+                <th title="Parades">🧤 P</th>
+                <th title="Blocks">🚫 B</th>
+                <th title="Faltes Rebudes">⚠️ FR</th>
+                <th title="Exclusions">🟥 E</th>
+                <th title="Pèrdues">❌ Pèr</th>
+                <th title="Xuts Fallats">🎯❌ XF</th>
+                <th title="Infraccions 2m">📏 2m</th>
+                <th title="Contrafaltes">⚠️ CF</th>
+                <th title="Penalties Fallats">PenF</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -9269,9 +9628,17 @@ function renderPlayerMatchHistory(data) {
                     <td style="text-align: center;">${m.location}</td>
                     <td>${m.minutes}'</td>
                     <td style="font-weight: bold; color: #22d3ee;">${m.goals}</td>
-                    <td>${m.assists}</td>
-                    <td>${m.exclusions}</td>
-                    <td>${m.steals}</td>
+                    <td style="color: #22c55e;">${m.assists}</td>
+                    <td style="color: #06b6d4;">${m.steals}</td>
+                    <td style="color: #8b5cf6;">${m.saves}</td>
+                    <td style="color: #a78bfa;">${m.blocks}</td>
+                    <td style="color: #fbbf24;">${m.foulsReceived}</td>
+                    <td style="color: #ef4444;">${m.exclusions}</td>
+                    <td style="color: #fca5a5;">${m.turnovers}</td>
+                    <td style="color: #f97316;">${m.shotsMissed}</td>
+                    <td style="color: #fb923c;">${m.infraccions2m}</td>
+                    <td style="color: #fbbf24;">${m.contrafaltes}</td>
+                    <td style="color: ${m.penaltyMissed > 0 ? '#ef4444' : '#22c55e'};">${m.penaltyMissed}</td>
                     <td style="text-align: center;">${m.mvp}</td>
                 </tr>
             `).join('')}
@@ -9280,11 +9647,19 @@ function renderPlayerMatchHistory(data) {
             <tr style="font-weight: bold; background: rgba(34, 211, 238, 0.2);">
                 <td colspan="3">TOTALS</td>
                 <td>${data.totalMinutes}'</td>
-                <td style="color: #22d3ee;">${data.totalGoals}</td>
-                <td>${data.totalAssists}</td>
-                <td>${data.totalExclusions}</td>
-                <td>${data.totalSteals}</td>
-                <td style="text-align: center;">${data.mvpCount}</td>
+                <td style="color: #22d3ee;">${totals.goals}</td>
+                <td style="color: #22c55e;">${totals.assists}</td>
+                <td style="color: #06b6d4;">${totals.steals}</td>
+                <td style="color: #8b5cf6;">${totals.saves}</td>
+                <td style="color: #a78bfa;">${totals.blocks}</td>
+                <td style="color: #fbbf24;">${totals.foulsReceived}</td>
+                <td style="color: #ef4444;">${totals.exclusions}</td>
+                <td style="color: #fca5a5;">${totals.turnovers}</td>
+                <td style="color: #f97316;">${totals.shotsMissed}</td>
+                <td style="color: #fb923c;">${totals.infraccions2m}</td>
+                <td style="color: #fbbf24;">${totals.contrafaltes}</td>
+                <td style="color: ${totals.penaltyMissed > 0 ? '#ef4444' : '#22c55e'};">${totals.penaltyMissed}</td>
+                <td style="text-align: center;">${totals.mvpCount} ⭐</td>
             </tr>
         </tfoot>
     `;

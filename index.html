@@ -904,7 +904,11 @@ body.theme-juvenil {
                         </div>
                     </div>
                 </div>
-
+<div style="margin-bottom: 20px;">
+        <button class="btn" onclick="window.print()" style="background: #8b5cf6; padding: 12px 20px;">
+            🖨️ Imprimir / Exportar PDF
+        </button>
+    </div>
                 <div class="card">
                     <h2 class="section-title">Partidos Disponibles</h2>
                     <div class="matches-list" id="availableMatches"></div>
@@ -920,11 +924,7 @@ body.theme-juvenil {
         </button>
     </div>
 	-->
-	<div style="margin-bottom: 20px;">
-        <button class="btn" onclick="window.print()" style="background: #8b5cf6; padding: 12px 20px;">
-            🖨️ Imprimir / Exportar PDF
-        </button>
-    </div>
+	
     <!-- Filtro por jugador -->
     <div class="card">
         <div class="filter-bar">
@@ -3323,14 +3323,14 @@ function displayComparison() {
         });
         const avgValor = p.partidos > 0 ? valor / p.partidos : 0;
         return { ...p, valorTotal: valor, valorMitja: avgValor };
-    }).sort((a, b) => b.valorMitja - a.valorMitja);
+    }).sort((a, b) => b.valorTotal - a.valorTotal);
 
     const mvpContainer = document.createElement('div');
     mvpContainer.className = 'card';
     mvpContainer.innerHTML = `
         <h2 class="section-title">🏆 Ràn­­quing MVP de la Temporada</h2>
         <p style="font-size: 12px; color: #bae6fd; margin-bottom: 15px;">
-            Top 10 jugadors amb millor valoració mitjana per partit
+            Top 10 jugadors amb millor valoració total acumulada
         </p>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
             ${playersWithAvgValue.slice(0, 10).map((player, index) => {

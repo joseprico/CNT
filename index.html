@@ -182,6 +182,10 @@ body.theme-juvenil {
         max-height: 250px !important;
     }
 }
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
 .stats-table th,
 .stats-table td {
     padding: 10px;
@@ -1401,7 +1405,14 @@ body.theme-juvenil {
 <p style="color: #93c5fd; font-size: 14px; margin-bottom: 20px; font-style: italic;">
     🔄 Dades extretes directament de la Federació Catalana de Natació • Actualitzades automàticament cada 4 hores
 </p>
-        
+       <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px; flex-wrap: wrap;">
+    <p style="color: #93c5fd; font-size: 13px; margin: 0;">
+        📅 Última actualització: <span id="lastUpdateTime" style="font-weight: bold; color: #22d3ee;">Carregant...</span>
+    </p>
+    <span id="recentUpdateBadge" style="display: none; background: #ef4444; color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: bold; animation: pulse 2s infinite;">
+        🔴 Actualitzat recentment
+    </span>
+</div> 
         <div id="actawpLoading" style="text-align: center; padding: 40px;">
             <div style="font-size: 48px;">⏳</div>
             <p>Carregant dades d'ACTAWP...</p>
@@ -2060,6 +2071,7 @@ function getQuarterEndTime(match, quarter, quarterStartTime, quarterDuration) {
     document.getElementById('individualTab').classList.add('hidden');
     document.getElementById('federacionTab').classList.add('hidden');
     document.getElementById('actawpTab').classList.add('hidden');  // ⬅️ AFEGIR AQUESTA LÍNIA
+	checkLastUpdate();
     
     // Ocultar també les vistes internes del listTab
     document.getElementById('matchesView').classList.add('hidden');
@@ -9138,6 +9150,9 @@ function selectTeam(team) {
 function changeTeam() {
     localStorage.removeItem('selectedTeam');
     location.reload();
+	if (!document.getElementById('actawpTab').classList.contains('hidden')) {
+        checkLastUpdate();
+    }
 }
 
 // ✅ COMPROVAR SI JA HI HA EQUIP SELECCIONAT
@@ -10808,7 +10823,64 @@ async function loadActawpData(team = 'juvenil') {
         return null;
     }
 }
-
+// Funció per mostrar l'última actualització i detectar canvis recents
+async function checkLastUpdate() {
+    try {
+        const timeSpan = document.getElementById('lastUpdateTime');
+        const badge = document.getElementById('recentUpdateBadge');
+        
+        if (!timeSpan) return;
+        
+        // Determinar quin fitxer carregar segons l'equip seleccionat
+        const teamFile = currentTeam === 'cadet' ? 'actawp_cadet_data.json' : 'actawp_juvenil_data.json';
+        
+        // Afegir timestamp per evitar cache
+        const response = await fetch(`${teamFile}?t=${new Date().getTime()}`);
+        const data = await response.json();
+        
+        // Intentar obtenir la data del camp last_update si existeix
+        if (data.last_update) {
+            const updateDate = new Date(data.last_update);
+            const now = new Date();
+            const hoursDiff = (now - updateDate) / (1000 * 60 * 60);
+            
+            const options = { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            };
+            timeSpan.textContent = updateDate.toLocaleString('ca-ES', options);
+            
+            // Mostrar badge si s'ha actualitzat en les últimes 24 hores
+            if (badge && hoursDiff < 24) {
+                badge.style.display = 'inline-block';
+                setTimeout(() => {
+                    badge.style.display = 'none';
+                }, 10000);
+            }
+        } else {
+            // Si no hi ha timestamp, mostrar info general
+            timeSpan.textContent = 'Cada 4 hores (automàtic)';
+            timeSpan.style.color = '#93c5fd';
+            
+            // Mostrar el badge sempre perquè les dades s'actualitzen regularment
+            if (badge) {
+                badge.style.display = 'inline-block';
+                badge.innerHTML = '🔄 Sincronització activa';
+                badge.style.background = '#06b6d4';
+            }
+        }
+    } catch (error) {
+        console.error('Error checking last update:', error);
+        const timeSpan = document.getElementById('lastUpdateTime');
+        if (timeSpan) {
+            timeSpan.textContent = 'Sistema automàtic cada 4h';
+            timeSpan.style.color = '#93c5fd';
+        }
+    }
+}
 function displayActawpData() {
     if (!actawpData) {
         document.getElementById('actawpLoading').innerHTML = `

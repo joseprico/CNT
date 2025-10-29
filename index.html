@@ -999,6 +999,27 @@ body.theme-juvenil {
 .stat-draws { color: #fbbf24; font-weight: 600; }
 .stat-losses { color: #ef4444; font-weight: 600; }
 .stat-points { color: #fbbf24; font-weight: bold; font-size: 16px; }
+/* Estils per els logos dels equips */
+.match-team-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    background: white;
+    border-radius: 4px;
+    padding: 2px;
+    margin-right: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.match-team-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.match-team-name {
+    flex: 1;
+}
     </style>
  <script async src="https://www.googletagmanager.com/gtag/js?id=G-H8JDTNNK0Z"></script>
 <script>
@@ -1093,16 +1114,23 @@ body.theme-juvenil {
 </div>
     <div class="container">
     <div class="header" style="position: relative;">
-        <div style="position: absolute; top: 0; right: 0; font-size: 12px; color: rgba(255,255,255,0.6); font-style: italic;">
-            by Josep Rico
-        </div>
-        <h1 id="mainTitle">📊 Estadísticas CN Terrassa</h1>
-        <p id="mainSubtitle">Selecciona un equip...</p>
-		<p id="coachName" style="font-size: 16px; color: #fde047; margin-top: 8px; font-weight: 600;"></p>
-        <button onclick="changeTeam()" class="btn" style="background: #8b5cf6; padding: 8px 16px; font-size: 14px; margin-top: 10px;">
-            🔄 Canviar Equip
-        </button>
+    <div style="position: absolute; top: 0; right: 0; font-size: 12px; color: rgba(255,255,255,0.6); font-style: italic;">
+        by Josep Rico
     </div>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 10px;">
+        <img src="https://clubnatacioterrassa.cat/wp-content/uploads/CNT_Escut_Blau.png.webp" 
+             alt="CN Terrassa" 
+             style="width: 60px; height: 60px; object-fit: contain;">
+        <div style="text-align: center;">
+            <h1 id="mainTitle" style="margin: 0;">📊 Estadísticas CN Terrassa</h1>
+            <p id="mainSubtitle" style="margin: 5px 0 0 0;">Selecciona un equip...</p>
+        </div>
+    </div>
+    <p id="coachName" style="font-size: 16px; color: #fde047; margin-top: 8px; font-weight: 600;"></p>
+    <button onclick="changeTeam()" class="btn" style="background: #8b5cf6; padding: 8px 16px; font-size: 14px; margin-top: 10px;">
+        🔄 Canviar Equip
+    </button>
+</div>
 	
         <!-- TABS SIEMPRE VISIBLES -->
         <div class="tabs">
@@ -10936,15 +10964,16 @@ async function checkLastUpdate() {
             const hoursDiff = (now - updateDate) / (1000 * 60 * 60);
             
             console.log('✅ Last update trobat:', actawpData.last_update);
-            console.log(`⏱️ Hores de diferència: ${hoursDiff.toFixed(1)}h`);
+            console.log(`⏱️ Hores de diferència: ${hoursDiff.toFixed(1)}h`);  // ⭐ ARREGLAT: backticks
             
-            // Mostrar data formatada
+            // Mostrar data formatada EN HORA CATALANA
             const options = { 
                 day: '2-digit', 
                 month: '2-digit', 
                 year: 'numeric', 
                 hour: '2-digit', 
-                minute: '2-digit' 
+                minute: '2-digit',
+                timeZone: 'Europe/Madrid'  // ⭐ AFEGIT
             };
             timeSpan.textContent = updateDate.toLocaleString('ca-ES', options);
             
@@ -11005,6 +11034,180 @@ async function checkLastUpdate() {
             timeSpan.style.color = '#ef4444';
         }
     }
+}
+
+function displayUpcomingMatches() {
+    const matches = actawpData.upcoming_matches || [];
+    const container = document.getElementById('actawp-upcoming-matches');
+    
+    if (matches.length === 0) {
+        container.innerHTML = '<p style="color: #bae6fd;">No hi ha pròxims partits programats</p>';
+        return;
+    }
+    
+    let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
+    
+    matches.forEach((match, index) => {
+        const date = match.date || match.date_time || 'Data desconeguda';
+        const time = match.time || '';
+        const homeTeam = match.home_team || match.team1 || '?';
+        const awayTeam = match.away_team || match.team2 || '?';
+        const venue = match.venue || '';
+        const url = match.url || '#';
+        
+        // LOGOS
+        const homeLogo = match.home_team_logo || match.team1_logo || null;
+        const awayLogo = match.away_team_logo || match.team2_logo || null;
+        
+        // Debug
+        if (index === 0) {
+            console.log('DEBUG Propers partits - Logos:', { homeLogo, awayLogo, match });
+        }
+        
+        const homeLogoHtml = homeLogo 
+            ? `<img src="${homeLogo}" style="width: 28px; height: 28px; object-fit: contain; background: white; border-radius: 4px; padding: 2px; margin-right: 8px;" alt="${homeTeam}" onerror="console.error('Error logo home:', this.src); this.style.display='none';">` 
+            : '';
+        
+        const awayLogoHtml = awayLogo 
+            ? `<img src="${awayLogo}" style="width: 28px; height: 28px; object-fit: contain; background: white; border-radius: 4px; padding: 2px; margin-left: 8px;" alt="${awayTeam}" onerror="console.error('Error logo away:', this.src); this.style.display='none';">` 
+            : '';
+        
+        // Determinar si CN Terrassa juga a casa o fora
+        const isHome = homeTeam.toUpperCase().includes('TERRASSA');
+        const locationIcon = isHome ? '🏠' : '✈️';
+        const locationText = isHome ? 'Local' : 'Visitant';
+        
+        html += `
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid #22d3ee;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <div style="font-size: 14px; color: #bae6fd; margin-bottom: 5px;">
+                            📅 ${date} ${time ? `• ⏰ ${time}` : ''}
+                        </div>
+                        <div style="font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                            ${homeLogoHtml}
+                            <span>${homeTeam}</span>
+                            <span style="color: #67e8f9;">vs</span>
+                            <span>${awayTeam}</span>
+                            ${awayLogoHtml}
+                            <span style="font-size: 32px; line-height: 1;">${locationIcon}</span>
+                        </div>
+                        <div style="font-size: 13px; color: #94a3b8; margin-top: 5px;">
+                            ${locationIcon} ${locationText}
+                        </div>
+                        ${venue ? `<div style="font-size: 12px; color: #94a3b8; margin-top: 3px;">📍 ${venue}</div>` : ''}
+                    </div>
+                    <a href="${url}" target="_blank" rel="noopener noreferrer" style="background: #06b6d4; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px;">
+                        Veure més →
+                    </a>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function displayLastResults() {
+    const results = actawpData.last_results || [];
+    const container = document.getElementById('actawp-last-results');
+    
+    if (results.length === 0) {
+        container.innerHTML = '<p style="color: #bae6fd;">No hi ha resultats recents</p>';
+        return;
+    }
+    
+    let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
+    
+    results.forEach((result, index) => {
+        const homeTeam = result.home_team || result.team1 || '?';
+        const awayTeam = result.away_team || result.team2 || '?';
+        const homeScore = result.home_score || result.score_team1 || 0;
+        const awayScore = result.away_score || result.score_team2 || 0;
+        const url = result.url || '#';
+        
+        // LOGOS
+        const homeLogo = result.home_team_logo || result.team1_logo || null;
+        const awayLogo = result.away_team_logo || result.team2_logo || null;
+        
+        // Debug
+        if (index === 0) {
+            console.log('DEBUG Ultims resultats - Logos:', { homeLogo, awayLogo, result });
+        }
+        
+        const homeLogoHtml = homeLogo 
+            ? `<img src="${homeLogo}" style="width: 28px; height: 28px; object-fit: contain; background: white; border-radius: 4px; padding: 2px; margin-right: 8px;" alt="${homeTeam}" onerror="console.error('Error logo home:', this.src); this.style.display='none';">` 
+            : '';
+        
+        const awayLogoHtml = awayLogo 
+            ? `<img src="${awayLogo}" style="width: 28px; height: 28px; object-fit: contain; background: white; border-radius: 4px; padding: 2px; margin-left: 8px;" alt="${awayTeam}" onerror="console.error('Error logo away:', this.src); this.style.display='none';">` 
+            : '';
+        
+        // Determinar resultat
+        const homeWon = homeScore > awayScore;
+        const awayWon = awayScore > homeScore;
+        const draw = homeScore === awayScore;
+        
+        // Determinar si CN Terrassa va guanyar, empatar o perdre
+        const isHomeTerrassa = homeTeam.toUpperCase().includes('TERRASSA');
+        const isAwayTerrassa = awayTeam.toUpperCase().includes('TERRASSA');
+        
+        let resultIcon = '';
+        let resultText = '';
+        let borderColor = '';
+        
+        if (draw) {
+            resultIcon = '🟡';
+            resultText = 'Empat';
+            borderColor = '#fbbf24';
+        } else if ((isHomeTerrassa && homeWon) || (isAwayTerrassa && awayWon)) {
+            resultIcon = '🟢';
+            resultText = 'Victòria';
+            borderColor = '#4ade80';
+        } else {
+            resultIcon = '🔴';
+            resultText = 'Derrota';
+            borderColor = '#ef4444';
+        }
+        
+        // Colors dels equips segons el resultat
+        const homeColor = homeWon ? '#4ade80' : (draw ? '#fbbf24' : '#e0f2fe');
+        const awayColor = awayWon ? '#4ade80' : (draw ? '#fbbf24' : '#e0f2fe');
+        const homeWeight = homeWon ? '600' : '500';
+        const awayWeight = awayWon ? '600' : '500';
+        
+        html += `
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid ${borderColor};">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <div style="font-size: 12px; color: #bae6fd; margin-bottom: 8px;">
+                            ${resultIcon} ${resultText}
+                        </div>
+                        <div style="font-size: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                            <div style="display: flex; align-items: center; color: ${homeColor}; font-weight: ${homeWeight};">
+                                ${homeLogoHtml}
+                                <span>${homeTeam}</span>
+                            </div>
+                            <div style="background: rgba(34, 211, 238, 0.2); padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 20px; color: #22d3ee; min-width: 80px; text-align: center;">
+                                ${homeScore} - ${awayScore}
+                            </div>
+                            <div style="display: flex; align-items: center; color: ${awayColor}; font-weight: ${awayWeight};">
+                                <span>${awayTeam}</span>
+                                ${awayLogoHtml}
+                            </div>
+                        </div>
+                    </div>
+                    <a href="${url}" target="_blank" rel="noopener noreferrer" style="background: #06b6d4; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px;">
+                        Detalls →
+                    </a>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
 }
 function displayActawpData() {
     if (!actawpData) {
@@ -11079,100 +11282,7 @@ function displayActawpData() {
    }
 }
 
-function displayUpcomingMatches() {
-    const matches = actawpData.upcoming_matches || [];
-    const container = document.getElementById('actawp-upcoming-matches');
-    
-    if (matches.length === 0) {
-        container.innerHTML = '<p style="color: #bae6fd;">No hi ha pròxims partits programats</p>';
-        return;
-    }
-    
-    let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
-    
-    matches.forEach((match, index) => {
-        const date = match.date || match.date_time || 'Data desconeguda';
-        const time = match.time || '';
-        const homeTeam = match.home_team || match.team1 || '?';
-        const awayTeam = match.away_team || match.team2 || '?';
-        const venue = match.venue || '';
-        const url = match.url || '#';
-        
-        // Determinar si CN Terrassa juga a casa o fora
-        const isHome = homeTeam.toUpperCase().includes('TERRASSA');
-        const locationIcon = isHome ? '🏠' : '✈️';
-        const locationText = isHome ? 'Local' : 'Visitant';
-        
-        html += `
-            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid #22d3ee;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <div style="font-size: 14px; color: #bae6fd; margin-bottom: 5px;">
-                            📅 ${date} ${time ? `• ⏰ ${time}` : ''}
-                        </div>
-                        <div style="font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
-                            <span>${homeTeam}</span>
-                            <span style="color: #67e8f9;">vs</span>
-                            <span>${awayTeam}</span>
-                            <span style="font-size: 32px; line-height: 1;">${locationIcon}</span>
-                        </div>
-                        <div style="font-size: 13px; color: #94a3b8; margin-top: 5px;">
-                            ${locationIcon} ${locationText}
-                        </div>
-                        ${venue ? `<div style="font-size: 12px; color: #94a3b8; margin-top: 3px;">📍 ${venue}</div>` : ''}
-                    </div>
-                    <a href="${url}" target="_blank" rel="noopener noreferrer" style="background: #06b6d4; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px;">
-                        Veure més →
-                    </a>
-                </div>
-            </div>
-        `;
-    });
-    
-    html += '</div>';
-    container.innerHTML = html;
-}
 
-function displayLastResults() {
-    const results = actawpData.last_results || [];
-    const container = document.getElementById('actawp-last-results');
-    
-    if (results.length === 0) {
-        container.innerHTML = '<p style="color: #bae6fd;">No hi ha resultats recents</p>';
-        return;
-    }
-    
-    let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
-    
-    results.forEach((match, index) => {
-        const date = match.date || 'Data desconeguda';
-        const homeTeam = match.home_team || '?';
-        const awayTeam = match.away_team || '?';
-        const score = match.score || '-';
-        const url = match.url || '#';
-        
-        html += `
-            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid #8b5cf6;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <div style="font-size: 14px; color: #bae6fd; margin-bottom: 5px;">
-                            📅 ${date}
-                        </div>
-                        <div style="font-size: 18px; font-weight: bold;">
-                            ${homeTeam} <span style="color: #a78bfa; font-size: 20px;">${score}</span> ${awayTeam}
-                        </div>
-                    </div>
-                    <a href="${url}" target="_blank" style="background: #8b5cf6; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px;">
-                        Veure detalls →
-                    </a>
-                </div>
-            </div>
-        `;
-    });
-    
-    html += '</div>';
-    container.innerHTML = html;
-}
 
 function displayPlayerComparison() {
     console.log('\n🔍 displayPlayerComparison() executant...');
@@ -11591,7 +11701,14 @@ function displayActawpMatches() {
             const date = match.date || '';
             const time = match.time || '';
             const venue = match.venue || '';
-            
+            // Logos
+const logo1 = match.team1_logo || '';
+const logo2 = match.team2_logo || '';
+const ourLogo = isHome ? logo1 : logo2;
+const rivalLogo = isHome ? logo2 : logo1;
+
+const ourLogoHtml = ourLogo ? `<img src="${ourLogo}" style="width: 24px; height: 24px; object-fit: contain; background: white; border-radius: 4px; padding: 2px; margin-right: 8px; vertical-align: middle;" onerror="this.style.display='none';">` : '';
+const rivalLogoHtml = rivalLogo ? `<img src="${rivalLogo}" style="width: 24px; height: 24px; object-fit: contain; background: white; border-radius: 4px; padding: 2px; margin-right: 8px; vertical-align: middle;" onerror="this.style.display='none';">` : '';
             html += `
                 <div style="background: rgba(34, 211, 238, 0.1); border-left: 4px solid #22d3ee; border-radius: 8px; padding: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -11601,18 +11718,24 @@ function displayActawpMatches() {
                             </div>
                             
 							${isHome ? `
-    <div style="font-size: 16px; font-weight: bold; color: #bae6fd;">
-        CN Terrassa
+    <div style="font-size: 16px; font-weight: bold; color: #bae6fd; display: flex; align-items: center;">
+        ${ourLogoHtml}
+        <span>CN Terrassa</span>
     </div>
-    <div style="font-size: 14px; color: #94a3b8; margin-top: 2px;">
-        vs ${rival}
+    <div style="font-size: 14px; color: #94a3b8; margin-top: 2px; display: flex; align-items: center;">
+        <span style="margin-right: 8px;">vs</span>
+        ${rivalLogoHtml}
+        <span>${rival}</span>
     </div>
 ` : `
-    <div style="font-size: 16px; font-weight: bold; color: #bae6fd;">
-        ${rival}
+    <div style="font-size: 16px; font-weight: bold; color: #bae6fd; display: flex; align-items: center;">
+        ${rivalLogoHtml}
+        <span>${rival}</span>
     </div>
-    <div style="font-size: 14px; color: #94a3b8; margin-top: 2px;">
-        vs CN Terrassa
+    <div style="font-size: 14px; color: #94a3b8; margin-top: 2px; display: flex; align-items: center;">
+        <span style="margin-right: 8px;">vs</span>
+        ${ourLogoHtml}
+        <span>CN Terrassa</span>
     </div>
 `}
                             
@@ -11714,6 +11837,14 @@ function displayActawpMatches() {
                 const borderColor = resultClass === 'win' ? '#4ade80' : 
                                    resultClass === 'loss' ? '#ef4444' : 
                                    '#94a3b8';
+				// Logos
+const logo1_res = match.team1_logo || '';
+const logo2_res = match.team2_logo || '';
+const ourLogo_res = isHome ? logo1_res : logo2_res;
+const rivalLogo_res = isHome ? logo2_res : logo1_res;
+
+const ourLogoHtml_res = ourLogo_res ? `<img src="${ourLogo_res}" style="width: 24px; height: 24px; object-fit: contain; background: white; border-radius: 4px; padding: 2px; margin-right: 8px; vertical-align: middle;" onerror="this.style.display='none';">` : '';
+const rivalLogoHtml_res = rivalLogo_res ? `<img src="${rivalLogo_res}" style="width: 24px; height: 24px; object-fit: contain; background: white; border-radius: 4px; padding: 2px; margin-right: 8px; vertical-align: middle;" onerror="this.style.display='none';">` : '';
                 
                 html += `
                     <div style="background: ${bgColor}; border-left: 4px solid ${borderColor}; border-radius: 8px; padding: 15px;">
@@ -11724,18 +11855,24 @@ function displayActawpMatches() {
                                 </div>
                                 
 								${isHome ? `
-    <div style="font-size: 16px; font-weight: bold; color: #bae6fd;">
-        CN Terrassa
+    <div style="font-size: 16px; font-weight: bold; color: #bae6fd; display: flex; align-items: center;">
+        ${ourLogoHtml_res}
+        <span>CN Terrassa</span>
     </div>
-    <div style="font-size: 14px; color: #94a3b8; margin-top: 2px;">
-        vs ${rival}
+    <div style="font-size: 14px; color: #94a3b8; margin-top: 2px; display: flex; align-items: center;">
+        <span style="margin-right: 8px;">vs</span>
+        ${rivalLogoHtml_res}
+        <span>${rival}</span>
     </div>
 ` : `
-    <div style="font-size: 16px; font-weight: bold; color: #bae6fd;">
-        ${rival}
+    <div style="font-size: 16px; font-weight: bold; color: #bae6fd; display: flex; align-items: center;">
+        ${rivalLogoHtml_res}
+        <span>${rival}</span>
     </div>
-    <div style="font-size: 14px; color: #94a3b8; margin-top: 2px;">
-        vs CN Terrassa
+    <div style="font-size: 14px; color: #94a3b8; margin-top: 2px; display: flex; align-items: center;">
+        <span style="margin-right: 8px;">vs</span>
+        ${ourLogoHtml_res}
+        <span>CN Terrassa</span>
     </div>
 `}
                                 
@@ -11940,19 +12077,22 @@ document.addEventListener('DOMContentLoaded', function() {
         loadRankingACTAWP();
     }
 });
+
+
+console.log('✅ Funcions de visualització amb logos carregades');
 </script>
 
   
   </script>
    <script>
     // 🔒 Bloqueo de clic derecho y atajos
-    document.addEventListener("contextmenu", event => event.preventDefault());
+   /* document.addEventListener("contextmenu", event => event.preventDefault());
     document.addEventListener("keydown", event => {
       if ((event.ctrlKey && ["s", "u"].includes(event.key.toLowerCase())) ||
           event.key === "F12") {
         event.preventDefault();
       }
-    });
+    });*/
     </script>
 </body>
 </html>

@@ -2071,7 +2071,7 @@ function getQuarterEndTime(match, quarter, quarterStartTime, quarterDuration) {
     document.getElementById('individualTab').classList.add('hidden');
     document.getElementById('federacionTab').classList.add('hidden');
     document.getElementById('actawpTab').classList.add('hidden');  // ⬅️ AFEGIR AQUESTA LÍNIA
-	checkLastUpdate();
+
     
     // Ocultar també les vistes internes del listTab
     document.getElementById('matchesView').classList.add('hidden');
@@ -9147,12 +9147,15 @@ function selectTeam(team) {
     loadAllMatches(team);
 }
 
-function changeTeam() {
+async function changeTeam() {
+    // Actualitzar si estem al tab ACTAWP
+    if (!document.getElementById('actawpTab').classList.contains('hidden')) {
+        await checkLastUpdate();
+    }
+    
+    // Netejar i recarregar
     localStorage.removeItem('selectedTeam');
     location.reload();
-	if (!document.getElementById('actawpTab').classList.contains('hidden')) {
-        checkLastUpdate();
-    }
 }
 
 // ✅ COMPROVAR SI JA HI HA EQUIP SELECCIONAT
@@ -10806,7 +10809,7 @@ async function loadActawpData(team = 'juvenil') {
         
         const selectedRepo = repos[team];
         
-        // Carregar el fitxer ACTAWP des de GitHub
+        // Carregar el fitxer ACTAWP des de GitHub (amb parèntesis, no backticks!)
         const response = await fetch(`https://raw.githubusercontent.com/${selectedRepo}/main/actawp_${team}_data.json`);
         
         if (!response.ok) {
@@ -10815,6 +10818,9 @@ async function loadActawpData(team = 'juvenil') {
         
         actawpData = await response.json();
         console.log('✅ Dades ACTAWP carregades:', actawpData);
+        
+        // Actualitzar el timestamp després de carregar les dades
+        await checkLastUpdate();
         
         return actawpData;
         
@@ -10835,15 +10841,16 @@ async function checkLastUpdate() {
         const teamFile = currentTeam === 'cadet' ? 'actawp_cadet_data.json' : 'actawp_juvenil_data.json';
         
         // Afegir timestamp per evitar cache
-        const response = await fetch(`${teamFile}?t=${new Date().getTime()}`);
+        const response = await fetch(`https://raw.githubusercontent.com/joseprico/${currentTeam === 'cadet' ? 'cnt_cadet_25-26' : 'CNT_juvenil_25_26'}/main/${teamFile}?t=${new Date().getTime()}`);
         const data = await response.json();
         
-        // Intentar obtenir la data del camp last_update si existeix
+        // Si el JSON té el camp last_update
         if (data.last_update) {
             const updateDate = new Date(data.last_update);
             const now = new Date();
             const hoursDiff = (now - updateDate) / (1000 * 60 * 60);
             
+            // Mostrar data formatada
             const options = { 
                 day: '2-digit', 
                 month: '2-digit', 
@@ -10861,23 +10868,13 @@ async function checkLastUpdate() {
                 }, 10000);
             }
         } else {
-            // Si no hi ha timestamp, mostrar info general
             timeSpan.textContent = 'Cada 4 hores (automàtic)';
-            timeSpan.style.color = '#93c5fd';
-            
-            // Mostrar el badge sempre perquè les dades s'actualitzen regularment
-            if (badge) {
-                badge.style.display = 'inline-block';
-                badge.innerHTML = '🔄 Sincronització activa';
-                badge.style.background = '#06b6d4';
-            }
         }
     } catch (error) {
         console.error('Error checking last update:', error);
         const timeSpan = document.getElementById('lastUpdateTime');
         if (timeSpan) {
-            timeSpan.textContent = 'Sistema automàtic cada 4h';
-            timeSpan.style.color = '#93c5fd';
+            timeSpan.textContent = 'No disponible';
         }
     }
 }

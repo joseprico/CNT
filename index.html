@@ -923,6 +923,82 @@ body.theme-juvenil {
 .tab-content:not(.hidden) {
     display: block;
 }
+/* Estils per la classificació */
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.ranking-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.ranking-table th {
+    padding: 12px 8px;
+    text-align: center;
+    color: white;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.ranking-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.2s ease;
+}
+
+.ranking-table tbody tr:hover {
+    background-color: rgba(34, 211, 238, 0.1);
+}
+
+.ranking-table tbody tr.highlight-team {
+    background-color: rgba(251, 191, 36, 0.2);
+    font-weight: bold;
+    border-left: 3px solid #fbbf24;
+}
+
+.ranking-table td {
+    padding: 12px 8px;
+    text-align: center;
+    color: #bae6fd;
+}
+
+.team-cell {
+    text-align: left !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 15px !important;
+}
+
+.team-logo {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    background: white;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.position-badge {
+    display: inline-block;
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    border-radius: 50%;
+    font-weight: bold;
+    color: white;
+}
+
+.position-badge.gold { background: linear-gradient(135deg, #FFD700, #FFA500); }
+.position-badge.silver { background: linear-gradient(135deg, #C0C0C0, #A8A8A8); }
+.position-badge.bronze { background: linear-gradient(135deg, #CD7F32, #B8733A); }
+
+.stat-wins { color: #4ade80; font-weight: 600; }
+.stat-draws { color: #fbbf24; font-weight: 600; }
+.stat-losses { color: #ef4444; font-weight: 600; }
+.stat-points { color: #fbbf24; font-weight: bold; font-size: 16px; }
     </style>
  <script async src="https://www.googletagmanager.com/gtag/js?id=G-H8JDTNNK0Z"></script>
 <script>
@@ -1419,9 +1495,38 @@ body.theme-juvenil {
         </div>
         
         <div id="actawpContent" style="display: none;">
-            <!-- ESTADÍSTIQUES DE L'EQUIP -->
+            
+            
+            <!-- PRÒXIMS PARTITS -->
+            <div class="card" style="background: rgba(0,0,0,0.3); margin-top: 20px;">
+                <h3 class="section-title">📅 Pròxims Partits</h3>
+                <div id="actawp-upcoming-matches">
+                    <p style="color: #bae6fd;">No hi ha pròxims partits programats</p>
+                </div>
+            </div>
+            
+            <!-- ÚLTIMS RESULTATS -->
+            <div class="card" style="background: rgba(0,0,0,0.3); margin-top: 20px;">
+                <h3 class="section-title">🏆 Últims Resultats</h3>
+                <div id="actawp-last-results">
+                    <p style="color: #bae6fd;">No hi ha resultats recents</p>
+                </div>
+            </div>
+           <!-- AFEGIR DESPRÉS DELS "ÚLTIMS RESULTATS" -->
+
+<!-- CLASSIFICACIÓ FASE 2 -->
+<div class="card" style="background: rgba(0,0,0,0.3); margin-top: 20px;">
+    <h3 class="section-title">🏆 Classificació Fase 2</h3>
+    <p style="color: #bae6fd; margin-bottom: 15px; font-size: 14px;">
+        Classificació oficial de la segona fase de la lliga
+    </p>
+    <div id="actawp-ranking-container">
+        <p style="text-align: center; color: #bae6fd;">Carregant classificació...</p>
+    </div>
+</div>
+<!-- ESTADÍSTIQUES DE L'EQUIP -->
             <div class="card" style="background: rgba(0,0,0,0.3);">
-                <h3 class="section-title">📈 Classificació i Estadístiques</h3>
+                <h3 class="section-title">📈 Estadístiques</h3>
                 <div class="stats-grid">
                     <div class="stat-item">
                         <div class="stat-label">Punts</div>
@@ -1457,23 +1562,6 @@ body.theme-juvenil {
                     </div>
                 </div>
             </div>
-            
-            <!-- PRÒXIMS PARTITS -->
-            <div class="card" style="background: rgba(0,0,0,0.3); margin-top: 20px;">
-                <h3 class="section-title">📅 Pròxims Partits</h3>
-                <div id="actawp-upcoming-matches">
-                    <p style="color: #bae6fd;">No hi ha pròxims partits programats</p>
-                </div>
-            </div>
-            
-            <!-- ÚLTIMS RESULTATS -->
-            <div class="card" style="background: rgba(0,0,0,0.3); margin-top: 20px;">
-                <h3 class="section-title">🏆 Últims Resultats</h3>
-                <div id="actawp-last-results">
-                    <p style="color: #bae6fd;">No hi ha resultats recents</p>
-                </div>
-            </div>
-            
             <!-- COMPARATIVA AMB LES NOSTRES DADES -->
             <div class="card" style="background: rgba(0,0,0,0.3); margin-top: 20px;">
                 <h3 class="section-title">🔍 Comparativa de Jugadors</h3>
@@ -10801,7 +10889,6 @@ async function loadActawpData(team = 'juvenil') {
     try {
         console.log('🔄 Carregant dades ACTAWP per:', team);
         
-        // Determinar el repositori segons l'equip
         const repos = {
             cadet: 'joseprico/cnt_cadet_25-26',
             juvenil: 'joseprico/CNT_juvenil_25_26'
@@ -10809,7 +10896,7 @@ async function loadActawpData(team = 'juvenil') {
         
         const selectedRepo = repos[team];
         
-        // Carregar el fitxer ACTAWP des de GitHub (amb parèntesis, no backticks!)
+        // Carregar el fitxer ACTAWP des de GitHub (ARREGLA ELS BACKTICKS!)
         const response = await fetch(`https://raw.githubusercontent.com/${selectedRepo}/main/actawp_${team}_data.json`);
         
         if (!response.ok) {
@@ -10819,8 +10906,10 @@ async function loadActawpData(team = 'juvenil') {
         actawpData = await response.json();
         console.log('✅ Dades ACTAWP carregades:', actawpData);
         
-        // Actualitzar el timestamp després de carregar les dades
         await checkLastUpdate();
+        
+        // ⭐ AFEGEIX AIXÒ AL FINAL:
+        await loadRankingACTAWP(team);
         
         return actawpData;
         
@@ -11717,19 +11806,153 @@ function displayActawpMatches() {
     
     console.log('✅ Partits mostrats!');
 }
+// Funció per carregar la classificació
+function loadRankingACTAWP() {
+    console.log('🏆 Carregant classificació ACTAWP...');
+    
+    const teamKey = localStorage.getItem('selectedTeam') || 'juvenil';
+    const container = document.getElementById('actawp-ranking-container');
+    
+    if (!container) {
+        console.error('❌ No es troba el contenidor actawp-ranking-container');
+        return;
+    }
+    
+    // Definir les URLs dels JSON per cada equip
+const jsonUrls = {
+    'juvenil': 'https://joseprico.github.io/CNT_juvenil_25_26/actawp_juvenil_data.json',
+    'cadet': 'https://joseprico.github.io/cnt_cadet_25-26/actawp_cadet_data.json'
+};
+
+fetch(jsonUrls[teamKey])
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            console.log('✅ Dades carregades:', data);
+            
+            if (!data.ranking || data.ranking.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #bae6fd;">No hi ha classificació disponible</p>';
+                return;
+            }
+            
+            console.log(`📊 ${data.ranking.length} equips a la classificació`);
+            mostrarClassificacio(data.ranking);
+        })
+        .catch(error => {
+            console.error('❌ Error carregant classificació:', error);
+            container.innerHTML = '<p style="text-align: center; color: #ef4444;">Error al carregar la classificació</p>';
+        });
+}
+
+function mostrarClassificacio(ranking) {
+    const container = document.getElementById('actawp-ranking-container');
+    
+    let html = `
+        <table class="ranking-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">Pos</th>
+                    <th style="text-align: left; padding-left: 15px;">Equip</th>
+                    <th>PJ</th>
+                    <th>G</th>
+                    <th>E</th>
+                    <th>P</th>
+                    <th>GF</th>
+                    <th>GC</th>
+                    <th>Pts</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    ranking.forEach(team => {
+        const isOurTeam = team.equip.toUpperCase().includes('TERRASSA');
+        const rowClass = isOurTeam ? 'highlight-team' : '';
+        
+        // Badge per les primeres 3 posicions
+        let posDisplay = team.posicio;
+        if (team.posicio === '1') {
+            posDisplay = `<span class="position-badge gold">${team.posicio}</span>`;
+        } else if (team.posicio === '2') {
+            posDisplay = `<span class="position-badge silver">${team.posicio}</span>`;
+        } else if (team.posicio === '3') {
+            posDisplay = `<span class="position-badge bronze">${team.posicio}</span>`;
+        }
+        
+        // Logo
+        const logoHtml = team.logo 
+            ? `<img src="${team.logo}" class="team-logo" alt="${team.equip}" onerror="this.style.display='none'">` 
+            : '<div style="width: 30px;"></div>';
+        
+        html += `
+            <tr class="${rowClass}">
+                <td style="font-weight: bold; color: #22d3ee;">${posDisplay}</td>
+                <td>
+                    <div class="team-cell">
+                        ${logoHtml}
+                        <span style="color: #e0f2fe; font-weight: 500;">${team.equip}</span>
+                    </div>
+                </td>
+                <td>${team.partits || 0}</td>
+                <td class="stat-wins">${team.guanyats || 0}</td>
+                <td class="stat-draws">${team.empatats || 0}</td>
+                <td class="stat-losses">${team.perduts || 0}</td>
+                <td>${team.gols_favor || 0}</td>
+                <td>${team.gols_contra || 0}</td>
+                <td class="stat-points">${team.punts || 0}</td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table>';
+    container.innerHTML = html;
+    console.log('✅ Classificació mostrada correctament');
+}
+
+// Carregar quan es mostra el tab ACTAWP
+console.log('🔧 Script de classificació carregat');
+
+// Opció 1: Si ja tens una funció loadACTAWPData, afegim-hi la classificació
+if (typeof loadACTAWPData === 'function') {
+    const originalFunction = loadACTAWPData;
+    loadACTAWPData = function() {
+        originalFunction();
+        setTimeout(loadRankingACTAWP, 500);
+    };
+    console.log('✅ Classificació integrada amb loadACTAWPData');
+}
+
+// Opció 2: Carregar quan es clica el tab ACTAWP
+document.addEventListener('DOMContentLoaded', function() {
+    const actawpButton = document.querySelector('button[onclick*="actawpTab"]');
+    if (actawpButton) {
+        actawpButton.addEventListener('click', function() {
+            setTimeout(loadRankingACTAWP, 500);
+        });
+        console.log('✅ Event afegit al botó ACTAWP');
+    }
+    
+    // Si ja estem al tab ACTAWP, carregar directament
+    const actawpTab = document.getElementById('actawpTab');
+    if (actawpTab && !actawpTab.classList.contains('hidden')) {
+        loadRankingACTAWP();
+    }
+});
 </script>
 
   
   </script>
    <script>
     // 🔒 Bloqueo de clic derecho y atajos
-    document.addEventListener("contextmenu", event => event.preventDefault());
+   /* document.addEventListener("contextmenu", event => event.preventDefault());
     document.addEventListener("keydown", event => {
       if ((event.ctrlKey && ["s", "u"].includes(event.key.toLowerCase())) ||
           event.key === "F12") {
         event.preventDefault();
       }
-    });
+    });*/
     </script>
 </body>
 </html>

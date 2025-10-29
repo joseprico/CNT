@@ -10835,20 +10835,19 @@ async function checkLastUpdate() {
         const timeSpan = document.getElementById('lastUpdateTime');
         const badge = document.getElementById('recentUpdateBadge');
         
-        if (!timeSpan) return;
+        if (!timeSpan) {
+            console.log('⚠️ Element lastUpdateTime no trobat');
+            return;
+        }
         
-        // Determinar quin fitxer carregar segons l'equip seleccionat
-        const teamFile = currentTeam === 'cadet' ? 'actawp_cadet_data.json' : 'actawp_juvenil_data.json';
-        
-        // Afegir timestamp per evitar cache
-        const response = await fetch(`https://raw.githubusercontent.com/joseprico/${currentTeam === 'cadet' ? 'cnt_cadet_25-26' : 'CNT_juvenil_25_26'}/main/${teamFile}?t=${new Date().getTime()}`);
-        const data = await response.json();
-        
-        // Si el JSON té el camp last_update
-        if (data.last_update) {
-            const updateDate = new Date(data.last_update);
+        // Si ja tenim actawpData carregat, usar-lo directament
+        if (actawpData && actawpData.last_update) {
+            const updateDate = new Date(actawpData.last_update);
             const now = new Date();
             const hoursDiff = (now - updateDate) / (1000 * 60 * 60);
+            
+            console.log('✅ Last update trobat:', actawpData.last_update);
+            console.log(`⏱️ Hores de diferència: ${hoursDiff.toFixed(1)}h`);
             
             // Mostrar data formatada
             const options = { 
@@ -10860,21 +10859,61 @@ async function checkLastUpdate() {
             };
             timeSpan.textContent = updateDate.toLocaleString('ca-ES', options);
             
-            // Mostrar badge si s'ha actualitzat en les últimes 24 hores
-            if (badge && hoursDiff < 24) {
+            // Sistema de colors segons l'antiguitat
+            let badgeColor, badgeText, badgeIcon, timeColor;
+            
+            if (hoursDiff < 2) {
+                // Menys de 2 hores - VERD (acabat d'actualitzar)
+                badgeColor = '#10b981'; // green-500
+                badgeText = 'Actualitzat recentment';
+                badgeIcon = '🟢';
+                timeColor = '#22d3ee'; // cyan-400
+            } else if (hoursDiff < 5) {
+                // Entre 2-5 hores - GROC (normal)
+                badgeColor = '#f59e0b'; // amber-500
+                badgeText = 'Dades recents';
+                badgeIcon = '🟡';
+                timeColor = '#22d3ee';
+            } else if (hoursDiff < 12) {
+                // Entre 5-12 hores - TARONJA (una mica antic)
+                badgeColor = '#f97316'; // orange-500
+                badgeText = 'Pendent actualització';
+                badgeIcon = '🟠';
+                timeColor = '#fbbf24'; // amber-400
+            } else {
+                // Més de 12 hores - VERMELL (molt antic)
+                badgeColor = '#ef4444'; // red-500
+                badgeText = 'Dades antigues';
+                badgeIcon = '🔴';
+                timeColor = '#ef4444';
+            }
+            
+            timeSpan.style.color = timeColor;
+            
+            // Mostrar badge amb el color corresponent
+            if (badge) {
                 badge.style.display = 'inline-block';
-                setTimeout(() => {
-                    badge.style.display = 'none';
-                }, 10000);
+                badge.style.background = badgeColor;
+                badge.innerHTML = `${badgeIcon} ${badgeText}`;
+                
+                // Només amagar el badge si és verd (recent)
+                if (hoursDiff < 2) {
+                    setTimeout(() => {
+                        badge.style.display = 'none';
+                    }, 10000);
+                }
             }
         } else {
-            timeSpan.textContent = 'Cada 4 hores (automàtic)';
+            console.log('⚠️ actawpData no té last_update');
+            timeSpan.textContent = 'Actualització automàtica cada 4h';
+            timeSpan.style.color = '#93c5fd';
         }
     } catch (error) {
-        console.error('Error checking last update:', error);
+        console.error('❌ Error checking last update:', error);
         const timeSpan = document.getElementById('lastUpdateTime');
         if (timeSpan) {
-            timeSpan.textContent = 'No disponible';
+            timeSpan.textContent = 'Error carregant data';
+            timeSpan.style.color = '#ef4444';
         }
     }
 }

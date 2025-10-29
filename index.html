@@ -1079,6 +1079,7 @@ body.theme-juvenil {
                 </div>
             </div>
 	</div>
+	
 <!-- TAB: TIEMPO DE JUEGO -->
 <div id="tiempoTab" class="hidden">
  <!--
@@ -1394,9 +1395,12 @@ body.theme-juvenil {
 <div id="actawpTab" class="hidden">
     <div class="card">
         <h2 class="section-title">📊 Dades Oficials ACTAWP</h2>
-        <p style="color: #bae6fd; margin-bottom: 20px;">
-            Estadístiques i calendari oficial de la Federació Catalana de Natació
-        </p>
+        <p style="color: #bae6fd; margin-bottom: 10px;">
+    Estadístiques i calendari oficial de la Federació Catalana de Natació
+</p>
+<p style="color: #93c5fd; font-size: 14px; margin-bottom: 20px; font-style: italic;">
+    🔄 Dades extretes directament de la Federació Catalana de Natació • Actualitzades automàticament cada 4 hores
+</p>
         
         <div id="actawpLoading" style="text-align: center; padding: 40px;">
             <div style="font-size: 48px;">⏳</div>
@@ -1469,10 +1473,41 @@ body.theme-juvenil {
             </div>
         </div>
     </div>
-</div>     
-<div id="actawpTab" class="hidden">
-  <!-- Tot el contingut del div d'actawpTab -->
+<div class="card" style="background: rgba(0,0,0,0.3); margin-top: 30px;">
+    <h3 class="section-title">🌐 Enllaços Directes ACTAWP</h3>
+    
+    <!-- Cadet -->
+    <div style="margin-bottom: 30px; padding: 20px; background: rgba(34, 211, 238, 0.1); border-radius: 12px; border: 2px solid rgba(34, 211, 238, 0.3);">
+        <h3 style="color: #22d3ee; font-size: 22px; margin-bottom: 15px;">
+            🏊 Cadet - Didac Cobacho
+        </h3>
+        <p style="color: #bae6fd; margin-bottom: 15px; font-size: 14px;">
+            Consulta el calendari, resultats, classificació i estadístiques de l'equip Cadet.
+        </p>
+        <a href="https://actawp.natacio.cat/ca/team/15621224" target="_blank" rel="noopener noreferrer">
+            <button class="btn" style="background: #06b6d4; padding: 15px 30px; font-size: 16px; width: 100%; max-width: 400px;">
+                🌐 Obrir Web Cadet
+            </button>
+        </a>
+    </div>
+    
+    <!-- Juvenil -->
+    <div style="padding: 20px; background: rgba(34, 211, 238, 0.1); border-radius: 12px; border: 2px solid rgba(34, 211, 238, 0.3);">
+        <h3 style="color: #22d3ee; font-size: 22px; margin-bottom: 15px;">
+            🏊 Juvenil - Jordi Busquets
+        </h3>
+        <p style="color: #bae6fd; margin-bottom: 15px; font-size: 14px;">
+            Consulta el calendari, resultats, classificació i estadístiques de l'equip Juvenil.
+        </p>
+        <a href="https://actawp.natacio.cat/es/team/15621223" target="_blank" rel="noopener noreferrer">
+            <button class="btn" style="background: #06b6d4; padding: 15px 30px; font-size: 16px; width: 100%; max-width: 400px;">
+                🌐 Obrir Web Juvenil
+            </button>
+        </a>
+    </div>
 </div>
+</div>     
+
 		   <!-- Vista de partido individual -->
             <div id="singleMatchView" class="hidden">
                 <div class="card">

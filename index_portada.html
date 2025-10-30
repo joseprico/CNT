@@ -9341,6 +9341,9 @@ window.addEventListener('DOMContentLoaded', () => {
         
         loadAllMatches(selectedTeam);
     }
+	setTimeout(() => {
+        showView('home');
+    }, 500);
 });
 // ============================================
 // FUNCIONS PER ESTADÍSTIQUES INDIVIDUALS
@@ -12136,6 +12139,14 @@ console.log('✅ Funcions de visualització amb logos carregades');
 async function loadHomeView() {
     console.log('🏠 Carregant vista Inici...');
     
+    // Esperar que els partits estiguin carregats
+    if (!allMatches || allMatches.length === 0) {
+        console.log('⏳ Esperant que es carreguin els partits...');
+        // Mostrar missatge de càrrega
+        document.getElementById('last-match-summary').innerHTML = '<div style="text-align: center; color: #64748b; padding: 20px;">Carregant partits...</div>';
+        document.getElementById('season-summary').innerHTML = '<div style="grid-column: 1 / -1; color: #64748b; text-align: center;">Carregant...</div>';
+    }
+    
     // Carregar dades ACTAWP si no estan carregades
     if (!actawpData) {
         await loadACTAWPData();
@@ -12238,55 +12249,88 @@ function loadRankingMini() {
 function loadLastMatchSummary() {
     const container = document.getElementById('last-match-summary');
     
-    const matches = JSON.parse(localStorage.getItem('matches') || '[]');
+    console.log('📊 Carregant últim partit. Total partits:', allMatches ? allMatches.length : 0);
     
-    if (matches.length === 0) {
+    // Verificar si hi ha partits carregats
+    if (!allMatches || allMatches.length === 0) {
         container.innerHTML = `
             <div style="text-align: center; color: #64748b; padding: 20px;">
                 <div style="font-size: 40px; margin-bottom: 10px;">📊</div>
-                <div>Encara no hi ha partits registrats</div>
-                <button class="btn btn-blue" onclick="loadMatchEntry()" style="margin-top: 15px;">
-                    Registrar primer partit
-                </button>
+                <div style="margin-bottom: 10px;">Encara no hi ha partits carregats</div>
+                <div style="font-size: 12px; color: #94a3b8;">Carregant dades...</div>
             </div>
         `;
         return;
     }
     
-    // Últim partit
-    const lastMatch = matches[matches.length - 1];
-    const rival = lastMatch.rival || 'Rival';
-    const scoreCNT = lastMatch.score?.cnt || 0;
-    const scoreRival = lastMatch.score?.rival || 0;
+    // Últim partit (el primer de la llista ja que estan ordenats per data desc)
+    const lastMatch = allMatches[0];
+    
+    const rival = lastMatch.rivalTeam || 'Rival';
+    const date = lastMatch.data ? new Date(lastMatch.data).toLocaleDateString('ca-ES') : 'Data desconeguda';
+    const scoreCNT = lastMatch.scoreCNT || 0;
+    const scoreRival = lastMatch.scoreRival || 0;
+    
     const won = scoreCNT > scoreRival;
+    const draw = scoreCNT === scoreRival;
     
     // Màxim golejador del partit
-    const players = lastMatch.players || {};
+    const players = lastMatch.jugadors || [];
     let topScorer = { name: '', goals: 0 };
-    Object.entries(players).forEach(([num, data]) => {
-        const goals = (data.gols || 0) + (data.gols_penal || 0);
+    
+    players.forEach(player => {
+        if (!player || !player.nom) return;
+        
+        const stats = player.estadistiques || {};
+        const goals = (stats.gols || 0) + (stats.golsPenalty || 0);
+        
         if (goals > topScorer.goals) {
-            topScorer = { name: data.name, goals };
+            topScorer = { name: player.nom, goals };
         }
     });
     
+    // Determinar color i icona
+    let resultColor, resultIcon;
+    if (draw) {
+        resultColor = '#f59e0b';
+        resultIcon = '🟡';
+    } else if (won) {
+        resultColor = '#10b981';
+        resultIcon = '✅';
+    } else {
+        resultColor = '#ef4444';
+        resultIcon = '❌';
+    }
+    
+    // Determinar si va ser a casa o fora
+    const location = lastMatch.location || 'home';
+    const locationIcon = location === 'home' ? '🏠' : '✈️';
+    const locationText = location === 'home' ? 'Casa' : 'Fora';
+    
     container.innerHTML = `
         <div style="text-align: center; padding: 10px 0;">
-            <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: ${won ? '#10b981' : '#ef4444'};">
+            <div style="font-size: 22px; font-weight: bold; margin-bottom: 8px; color: ${resultColor};">
                 CN Terrassa ${scoreCNT} - ${scoreRival} ${rival}
-                ${won ? '✅' : '❌'}
+            </div>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 12px;">
+                <span style="font-size: 24px;">${resultIcon}</span>
+                <span style="background: rgba(148, 163, 184, 0.2); padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #94a3b8;">
+                    ${locationIcon} ${locationText}
+                </span>
             </div>
             <div style="color: #64748b; font-size: 13px; margin-bottom: 15px;">
-                ${lastMatch.date || 'Data desconeguda'}
+                ${date}
             </div>
             ${topScorer.goals > 0 ? `
                 <div style="background: rgba(59, 130, 246, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px;">
                     <div style="font-size: 12px; color: #64748b; margin-bottom: 5px;">⚡ Màxim golejador</div>
-                    <div style="font-weight: bold;">${topScorer.name} (${topScorer.goals} gols)</div>
+                    <div style="font-weight: bold; color: #3b82f6;">${topScorer.name} (${topScorer.goals} ${topScorer.goals === 1 ? 'gol' : 'gols'})</div>
                 </div>
             ` : ''}
         </div>
     `;
+    
+    console.log('✅ Últim partit mostrat:', rival, scoreCNT + '-' + scoreRival);
 }
 
 function loadUpcomingMatchesMini() {
@@ -12365,30 +12409,33 @@ function showView(viewName) {
 function loadSeasonSummary() {
     const container = document.getElementById('season-summary');
     
-    const matches = JSON.parse(localStorage.getItem('matches') || '[]');
-    
-    if (matches.length === 0) {
-        container.innerHTML = '<div style="grid-column: 1 / -1; color: #64748b; text-align: center;">No hi ha dades de temporada</div>';
+    if (!allMatches || allMatches.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1 / -1; color: #64748b; text-align: center;">Carregant dades...</div>';
         return;
     }
     
     // Calcular estadístiques
     let totalGoals = 0;
-    let totalMatches = matches.length;
+    let totalMatches = allMatches.length;
     let wins = 0;
     let topScorerData = {};
     
-    matches.forEach(match => {
-        const scoreCNT = match.score?.cnt || 0;
-        const scoreRival = match.score?.rival || 0;
+    allMatches.forEach(match => {
+        const scoreCNT = match.scoreCNT || 0;
+        const scoreRival = match.scoreRival || 0;
+        
         totalGoals += scoreCNT;
         if (scoreCNT > scoreRival) wins++;
         
         // Comptar gols per jugador
-        const players = match.players || {};
-        Object.entries(players).forEach(([num, data]) => {
-            const name = data.name;
-            const goals = (data.gols || 0) + (data.gols_penal || 0);
+        const players = match.jugadors || [];
+        players.forEach(player => {
+            if (!player || !player.nom) return;
+            
+            const name = player.nom;
+            const stats = player.estadistiques || {};
+            const goals = (stats.gols || 0) + (stats.golsPenalty || 0);
+            
             if (!topScorerData[name]) topScorerData[name] = 0;
             topScorerData[name] += goals;
         });

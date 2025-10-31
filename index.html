@@ -1156,6 +1156,21 @@ body.theme-juvenil {
             </div>
 
             <div id="matchesView" class="hidden">
+			          <!-- 📅 ÚLTIMA ACTUALITZACIÓ ACTAWP -->
+    <div style="margin-bottom: 15px; padding: 12px 16px; background: rgba(34, 211, 238, 0.08); border-radius: 8px; border-left: 3px solid #22d3ee; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 18px;">📡</span>
+            <div>
+                <div style="color: #bae6fd; font-size: 11px; font-weight: 600; opacity: 0.8;">DADES FCN ACTAWP</div>
+                <div style="color: #93c5fd; font-size: 13px; margin-top: 2px;">
+                    Última actualització: <span id="lastUpdateTimeHome" style="font-weight: bold; color: #22d3ee;">Carregant...</span>
+                </div>
+            </div>
+        </div>
+        <span id="recentUpdateBadgeHome" style="display: none; background: #10b981; color: white; padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+            🟢 Actualitzat
+        </span>
+    </div>
                 <!-- ⭐ PASTILLES: Pròxim Partit + Classificació -->
     <div id="pastilles-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
         
@@ -11002,11 +11017,14 @@ async function loadActawpData(team = 'juvenil') {
 // Funció per mostrar l'última actualització i detectar canvis recents
 async function checkLastUpdate() {
     try {
+        // ⭐ ACTUALITZAR AMBDUES UBICACIONS: Tab ACTAWP i Tab Inici
         const timeSpan = document.getElementById('lastUpdateTime');
+        const timeSpanHome = document.getElementById('lastUpdateTimeHome');
         const badge = document.getElementById('recentUpdateBadge');
+        const badgeHome = document.getElementById('recentUpdateBadgeHome');
         
-        if (!timeSpan) {
-            console.log('⚠️ Element lastUpdateTime no trobat');
+        if (!timeSpan && !timeSpanHome) {
+            console.log('⚠️ Elements lastUpdateTime no trobats');
             return;
         }
         
@@ -11017,7 +11035,7 @@ async function checkLastUpdate() {
             const hoursDiff = (now - updateDate) / (1000 * 60 * 60);
             
             console.log('✅ Last update trobat:', actawpData.last_update);
-            console.log(`⏱️ Hores de diferència: ${hoursDiff.toFixed(1)}h`);  // ⭐ ARREGLAT: backticks
+            console.log(`⏱️ Hores de diferència: ${hoursDiff.toFixed(1)}h`);
             
             // Mostrar data formatada EN HORA CATALANA
             const options = { 
@@ -11026,65 +11044,84 @@ async function checkLastUpdate() {
                 year: 'numeric', 
                 hour: '2-digit', 
                 minute: '2-digit',
-                timeZone: 'Europe/Madrid'  // ⭐ AFEGIT
+                timeZone: 'Europe/Madrid'
             };
-            timeSpan.textContent = updateDate.toLocaleString('ca-ES', options);
+            const formattedDate = updateDate.toLocaleString('ca-ES', options);
             
             // Sistema de colors segons l'antiguitat
             let badgeColor, badgeText, badgeIcon, timeColor;
             
             if (hoursDiff < 2) {
-                // Menys de 2 hores - VERD (acabat d'actualitzar)
-                badgeColor = '#10b981'; // green-500
+                badgeColor = '#10b981';
                 badgeText = 'Actualitzat recentment';
                 badgeIcon = '🟢';
-                timeColor = '#22d3ee'; // cyan-400
+                timeColor = '#22d3ee';
             } else if (hoursDiff < 5) {
-                // Entre 2-5 hores - GROC (normal)
-                badgeColor = '#f59e0b'; // amber-500
+                badgeColor = '#f59e0b';
                 badgeText = 'Dades recents';
                 badgeIcon = '🟡';
                 timeColor = '#22d3ee';
             } else if (hoursDiff < 12) {
-                // Entre 5-12 hores - TARONJA (una mica antic)
-                badgeColor = '#f97316'; // orange-500
+                badgeColor = '#f97316';
                 badgeText = 'Pendent actualització';
                 badgeIcon = '🟠';
-                timeColor = '#fbbf24'; // amber-400
+                timeColor = '#fbbf24';
             } else {
-                // Més de 12 hores - VERMELL (molt antic)
-                badgeColor = '#ef4444'; // red-500
+                badgeColor = '#ef4444';
                 badgeText = 'Dades antigues';
                 badgeIcon = '🔴';
                 timeColor = '#ef4444';
             }
             
-            timeSpan.style.color = timeColor;
-            
-            // Mostrar badge amb el color corresponent
-            if (badge) {
-                badge.style.display = 'inline-block';
-                badge.style.background = badgeColor;
-                badge.innerHTML = `${badgeIcon} ${badgeText}`;
-                
-                // Només amagar el badge si és verd (recent)
-                if (hoursDiff < 2) {
-                    setTimeout(() => {
-                        badge.style.display = 'none';
-                    }, 10000);
-                }
+            // ⭐ ACTUALITZAR TAB ACTAWP
+            if (timeSpan) {
+                timeSpan.textContent = formattedDate;
+                timeSpan.style.color = timeColor;
             }
+            
+            // ⭐ ACTUALITZAR TAB INICI
+            if (timeSpanHome) {
+                timeSpanHome.textContent = formattedDate;
+                timeSpanHome.style.color = timeColor;
+            }
+            
+            // ⭐ ACTUALITZAR BADGES (ambdues ubicacions)
+            [badge, badgeHome].forEach(b => {
+                if (b) {
+                    b.style.display = 'inline-block';
+                    b.style.background = badgeColor;
+                    b.innerHTML = `${badgeIcon} ${badgeText}`;
+                    
+                    if (hoursDiff < 2) {
+                        setTimeout(() => {
+                            b.style.display = 'none';
+                        }, 10000);
+                    }
+                }
+            });
         } else {
             console.log('⚠️ actawpData no té last_update');
-            timeSpan.textContent = 'Actualització automàtica cada 4h';
-            timeSpan.style.color = '#93c5fd';
+            if (timeSpan) {
+                timeSpan.textContent = 'Actualització automàtica cada 30min';
+                timeSpan.style.color = '#93c5fd';
+            }
+            if (timeSpanHome) {
+                timeSpanHome.textContent = 'Actualització automàtica cada 30min';
+                timeSpanHome.style.color = '#93c5fd';
+            }
         }
     } catch (error) {
         console.error('❌ Error checking last update:', error);
         const timeSpan = document.getElementById('lastUpdateTime');
+        const timeSpanHome = document.getElementById('lastUpdateTimeHome');
+        
         if (timeSpan) {
             timeSpan.textContent = 'Error carregant data';
             timeSpan.style.color = '#ef4444';
+        }
+        if (timeSpanHome) {
+            timeSpanHome.textContent = 'Error carregant data';
+            timeSpanHome.style.color = '#ef4444';
         }
     }
 }

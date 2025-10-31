@@ -1,29 +1,22 @@
 {
   "name": "CN Terrassa Waterpolo Stats",
   "short_name": "CNT Stats",
-  "description": "Visualizador d'Estadístiques de Waterpolo del CN Terrassa",
-  "start_url": "/CNT/",
-  "scope": "/CNT/",
+  "description": "Estadístiques Waterpolo CN Terrassa",
+  "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#1e3a8a",
   "theme_color": "#1e40af",
-  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "https://clubnatacioterrassa.cat/wp-content/uploads/CNT_Escut_Blau.png.webp",
       "sizes": "192x192",
-      "type": "image/webp",
-      "purpose": "any maskable"
+      "type": "image/webp"
     },
     {
       "src": "https://clubnatacioterrassa.cat/wp-content/uploads/CNT_Escut_Blau.png.webp",
       "sizes": "512x512",
-      "type": "image/webp",
-      "purpose": "any maskable"
+      "type": "image/webp"
     }
-  ],
-  "categories": ["sports", "productivity"],
-  "screenshots": [],
-  "related_applications": [],
-  "prefer_related_applications": false
+  ]
 }

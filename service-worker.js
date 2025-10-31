@@ -1,9 +1,10 @@
 // Service Worker per CN Terrassa Waterpolo Stats
 const CACHE_NAME = 'cnt-waterpolo-v1';
+const BASE_PATH = '/CNT';
 const urlsToCache = [
-  '/index.html',
-  '/actawp_juvenil_data.json',
-  '/actawp_cadet_data.json',
+  `${BASE_PATH}/index.html`,
+  `${BASE_PATH}/actawp_juvenil_data.json`,
+  `${BASE_PATH}/actawp_cadet_data.json`,
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
@@ -83,7 +84,7 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Sincronització en segon pla (per futures actualitzacions de dades)
+// Sincronització en segon pla
 self.addEventListener('sync', event => {
   console.log('[Service Worker] Background sync:', event.tag);
   if (event.tag === 'sync-stats') {
@@ -93,11 +94,8 @@ self.addEventListener('sync', event => {
 
 async function syncStatistics() {
   try {
-    // Aquí podries actualitzar les dades en segon pla
     console.log('[Service Worker] Syncing statistics...');
-    // const response = await fetch('/actawp_juvenil_data.json');
-    // const data = await response.json();
-    // Guardar a caché...
+    // Aquí podries actualitzar les dades en segon pla
   } catch (error) {
     console.error('[Service Worker] Sync failed:', error);
   }

@@ -2,26 +2,37 @@
   "name": "CNT Waterpolo Stats",
   "short_name": "CNT WP",
   "description": "Estadístiques de Waterpolo del CN Terrassa - Cadet i Juvenil",
-  "start_url": ".",
-  "scope": ".",
+  "start_url": "/CNT/index.html",
+  "scope": "/CNT/",
   "display": "standalone",
   "background_color": "#dc2626",
   "theme_color": "#dc2626",
-  "orientation": "portrait-primary",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "cnt-stats-192.png",
+      "src": "/CNT/cnt-stats-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "cnt-stats-512.png",
+      "src": "/CNT/cnt-stats-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/CNT/cnt-stats-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/CNT/cnt-stats-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["sports", "utilities"],
-  "screenshots": []
+  "categories": ["sports", "utilities"]
 }

@@ -1,22 +1,27 @@
 {
-  "name": "CN Terrassa Waterpolo Stats",
-  "short_name": "CNT Stats",
-  "description": "Estadístiques Waterpolo CN Terrassa",
+  "name": "CNT Waterpolo Stats",
+  "short_name": "CNT WP",
+  "description": "Estadístiques de Waterpolo del CN Terrassa - Cadet i Juvenil",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
-  "background_color": "#1e3a8a",
-  "theme_color": "#1e40af",
+  "background_color": "#dc2626",
+  "theme_color": "#dc2626",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://clubnatacioterrassa.cat/wp-content/uploads/CNT_Escut_Blau.png.webp",
+      "src": "cnt-stats-192.png",
       "sizes": "192x192",
-      "type": "image/webp"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://clubnatacioterrassa.cat/wp-content/uploads/CNT_Escut_Blau.png.webp",
+      "src": "cnt-stats-512.png",
       "sizes": "512x512",
-      "type": "image/webp"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "categories": ["sports", "utilities"],
+  "screenshots": []
 }

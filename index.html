@@ -27,7 +27,7 @@ body {
 }
 /* Botó d'instal·lació PWA */
 .install-button {
-    display: none;
+    display: block !important; /* SEMPRE VISIBLE per debugar */
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -48,10 +48,6 @@ body {
 .install-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(6, 182, 212, 0.6);
-}
-
-.install-button:active {
-    transform: translateY(0);
 }
 
 @keyframes pulse-install {
@@ -1085,6 +1081,9 @@ body.theme-juvenil {
 </script>
 </head>
 <body>
+<button id="installButton" class="install-button">
+    📱 Instal·lar App
+</button>
 <div id="teamSelectionModal" style="
     position: fixed;
     top: 0;
@@ -12798,7 +12797,7 @@ async function loadFrontPagePills() {
       }
     });
     </script>
-	<script>
+<script>
 // 🎯 PWA Service Worker Registration
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -12820,11 +12819,12 @@ window.addEventListener('beforeinstallprompt', (e) => {
     console.log('💡 PWA instal·lable detectada');
     e.preventDefault();
     deferredPrompt = e;
-    installButton.style.display = 'block';
+    // NO amaguem el botó - ja és visible amb CSS
 });
 
 installButton.addEventListener('click', async () => {
     if (!deferredPrompt) {
+        alert('⚠️ La instal·lació no està disponible ara mateix.\n\nPossibles raons:\n• Els fitxers PWA no estan carregats\n• La pàgina no es serveix amb HTTPS\n• L\'app ja està instal·lada\n• El navegador no ho suporta');
         console.log('❌ No hi ha prompt d\'instal·lació disponible');
         return;
     }
@@ -12834,22 +12834,31 @@ installButton.addEventListener('click', async () => {
     console.log(`👤 L'usuari ${outcome === 'accepted' ? 'ha acceptat' : 'ha rebutjat'} la instal·lació`);
     
     if (outcome === 'accepted') {
-        installButton.style.display = 'none';
+        installButton.textContent = '✅ Instal·lada!';
+        installButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        setTimeout(() => {
+            installButton.style.display = 'none';
+        }, 2000);
     }
     
     deferredPrompt = null;
 });
 
-// Amagar botó si ja està instal·lada
 window.addEventListener('appinstalled', () => {
     console.log('✅ PWA instal·lada amb èxit');
-    installButton.style.display = 'none';
+    installButton.textContent = '✅ Instal·lada!';
+    installButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+    setTimeout(() => {
+        installButton.style.display = 'none';
+    }, 2000);
 });
 
-// Detectar si ja s'executa com a PWA
+// Si ja s'executa com a PWA, canviar el botó
 if (window.matchMedia('(display-mode: standalone)').matches) {
     console.log('✅ App executant-se com a PWA');
-    installButton.style.display = 'none';
+    installButton.textContent = '✅ App Instal·lada';
+    installButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+    installButton.style.cursor = 'default';
 }
 </script>
 </body>

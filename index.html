@@ -1070,6 +1070,44 @@ body.theme-juvenil {
 .match-team-name {
     flex: 1;
 }
+/* Estil per les instruccions iOS */
+.ios-instructions {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    max-width: 90%;
+    width: 350px;
+}
+
+.ios-card {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.5);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.ios-card ol {
+    line-height: 1.6;
+}
+
+.ios-card li {
+    margin: 8px 0;
+}
     </style>
  <script async src="https://www.googletagmanager.com/gtag/js?id=G-H8JDTNNK0Z"></script>
 <script>
@@ -1084,6 +1122,20 @@ body.theme-juvenil {
 <button id="installButton" class="install-button">
     📱 Instal·lar App
 </button>
+
+<!-- Instruccions per iOS (amagat per defecte) -->
+<div id="iosInstructions" class="ios-instructions" style="display: none;">
+    <div class="ios-card">
+        <p style="margin: 0 0 10px 0; font-size: 16px;">
+            <strong>📱 Per instal·lar en iPhone:</strong>
+        </p>
+        <ol style="text-align: left; margin: 0; padding-left: 20px; font-size: 14px;">
+            <li>Clica la icona de <strong>Compartir</strong> ↗️</li>
+            <li>Selecciona <strong>"Afegir a pantalla d'inici"</strong></li>
+            <li>Clica <strong>"Afegir"</strong></li>
+        </ol>
+    </div>
+</div>
 <div id="teamSelectionModal" style="
     position: fixed;
     top: 0;
@@ -12782,6 +12834,84 @@ async function loadFrontPagePills() {
     
     // ⭐ Iniciar compte enrere dinàmic
     startCountdownTimer();
+}
+// Detectar iOS
+function isIOS() {
+    return /iPhone|iPad|iPod/.test(navigator.userAgent) || 
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+// Detectar si ja està instal·lada com PWA
+function isInstalledPWA() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.navigator.standalone === true;
+}
+
+const installButton = document.getElementById('installButton');
+const iosInstructions = document.getElementById('iosInstructions');
+
+if (isIOS()) {
+    console.log('📱 iOS detectat');
+    
+    if (isInstalledPWA()) {
+        // Ja està instal·lada, no mostrar res
+        console.log('✅ PWA ja instal·lada');
+    } else {
+        // És iOS i NO està instal·lada → Mostrar instruccions
+        installButton.style.display = 'none';
+        iosInstructions.style.display = 'block';
+        
+        // Amagar instruccions si l'usuari ja les ha vist i no vol instal·lar
+        iosInstructions.addEventListener('click', () => {
+            iosInstructions.style.display = 'none';
+            localStorage.setItem('iosInstructionsSeen', 'true');
+        });
+        
+        // No mostrar si ja les ha vist abans
+        if (localStorage.getItem('iosInstructionsSeen') === 'true') {
+            iosInstructions.style.display = 'none';
+        }
+    }
+} else {
+    // Android o Desktop → Botó normal
+    console.log('🤖 Android/Desktop detectat');
+    
+    // El teu codi actual del botó d'instal·lació
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installButton.style.display = 'block';
+    });
+    
+    installButton.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+            alert('⚠️ La instal·lació no està disponible ara mateix.');
+            return;
+        }
+        
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        
+        if (outcome === 'accepted') {
+            installButton.textContent = '✅ Instal·lada!';
+            installButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            setTimeout(() => {
+                installButton.style.display = 'none';
+            }, 2000);
+        }
+        
+        deferredPrompt = null;
+    });
+    
+    window.addEventListener('appinstalled', () => {
+        installButton.style.display = 'none';
+    });
+    
+    if (isInstalledPWA()) {
+        installButton.style.display = 'none';
+    }
 }
 </script>
 

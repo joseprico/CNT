@@ -12932,12 +12932,14 @@ function stopCountdownTimer() {
 async function loadFrontPagePills() {
     console.log('🎨 Carregant pastilles portada...');
     
-    if (!actawpData) {
-        console.log('📥 Carregant dades ACTAWP...');
-        await loadACTAWPData();
-    }
+    // ⭐ CANVI CLAU: Sempre recarregar actawpData amb l'equip correcte
+    const teamKey = localStorage.getItem('selectedTeam') || 'juvenil';
+    console.log('📋 Equip seleccionat:', teamKey);
     
-    console.log('✅ ACTAWP Data:', actawpData);
+    // Forçar recàrrega de les dades de l'equip correcte
+    await loadACTAWPDataForTeam(teamKey);
+    
+    console.log('✅ ACTAWP Data carregades per:', teamKey, actawpData);
     
     loadNextMatchPill();
     loadRankingPill();
@@ -12980,7 +12982,26 @@ const alreadyInstalled = document.getElementById('alreadyInstalled');
 
 // Variable per guardar el prompt d'instal·lació
 let deferredPrompt;
-
+async function loadACTAWPDataForTeam(teamKey) {
+    console.log('📥 Carregant dades ACTAWP per:', teamKey);
+    
+    const jsonUrls = {
+        'juvenil': 'https://joseprico.github.io/CNT_juvenil_25_26/actawp_juvenil_data.json',
+        'cadet': 'https://joseprico.github.io/cnt_cadet_25-26/actawp_cadet_data.json'
+    };
+    
+    try {
+        const response = await fetch(jsonUrls[teamKey]);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        actawpData = await response.json();
+        console.log('✅ Dades ACTAWP carregades correctament per', teamKey);
+    } catch (error) {
+        console.error('❌ Error carregant dades ACTAWP:', error);
+        actawpData = null;
+    }
+}
 // ========================================
 // LÒGICA PRINCIPAL
 // ========================================

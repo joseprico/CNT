@@ -27,7 +27,7 @@ body {
 }
 /* Botó d'instal·lació PWA */
 .install-button {
-    display: block !important; /* SEMPRE VISIBLE per debugar */
+    display: block;
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -61,6 +61,109 @@ body {
         right: 10px;
         padding: 12px 20px;
         font-size: 13px;
+    }
+}
+
+/* Missatge d'app ja instal·lada */
+.already-installed {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.installed-card {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    font-weight: bold;
+    font-size: 14px;
+    animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(20px); }
+    10%, 90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+}
+
+@media (max-width: 768px) {
+    .already-installed {
+        bottom: 10px;
+        right: 10px;
+    }
+    .installed-card {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+}
+
+/* Instruccions iOS */
+.ios-instructions {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    max-width: 90%;
+    width: 350px;
+}
+
+.ios-card {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.5);
+    animation: slideUp 0.3s ease-out;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    transition: background 0.2s;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 100px);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+.ios-card ol {
+    line-height: 1.6;
+}
+
+.ios-card li {
+    margin: 8px 0;
+}
+
+@media (max-width: 768px) {
+    .ios-instructions {
+        bottom: 10px;
+        width: 90%;
     }
 }
 /* Tema CADET (Gris suau) */
@@ -1119,13 +1222,22 @@ body.theme-juvenil {
 </script>
 </head>
 <body>
-<button id="installButton" class="install-button">
+<!-- HTML del botó -->
+<button id="installButton" class="install-button" style="display: none;">
     📱 Instal·lar App
 </button>
+
+<!-- Missatge d'app ja instal·lada -->
+<div id="alreadyInstalled" class="already-installed" style="display: none;">
+    <div class="installed-card">
+        ✅ App ja instal·lada
+    </div>
+</div>
 
 <!-- Instruccions per iOS (amagat per defecte) -->
 <div id="iosInstructions" class="ios-instructions" style="display: none;">
     <div class="ios-card">
+        <button class="close-btn" onclick="document.getElementById('iosInstructions').style.display='none'">✕</button>
         <p style="margin: 0 0 10px 0; font-size: 16px;">
             <strong>📱 Per instal·lar en iPhone:</strong>
         </p>
@@ -12843,76 +12955,143 @@ function isIOS() {
 
 // Detectar si ja està instal·lada com PWA
 function isInstalledPWA() {
-    return window.matchMedia('(display-mode: standalone)').matches ||
-           window.navigator.standalone === true;
+    // Mètode 1: Display mode standalone
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        return true;
+    }
+    
+    // Mètode 2: iOS standalone
+    if (window.navigator.standalone === true) {
+        return true;
+    }
+    
+    // Mètode 3: Referrer (si ve d'una PWA instal·lada)
+    if (document.referrer.includes('android-app://')) {
+        return true;
+    }
+    
+    return false;
 }
 
+// Elements
 const installButton = document.getElementById('installButton');
 const iosInstructions = document.getElementById('iosInstructions');
+const alreadyInstalled = document.getElementById('alreadyInstalled');
 
-if (isIOS()) {
-    console.log('📱 iOS detectat');
+// Variable per guardar el prompt d'instal·lació
+let deferredPrompt;
+
+// ========================================
+// LÒGICA PRINCIPAL
+// ========================================
+
+function initPWA() {
+    console.log('🔍 Iniciant detecció PWA...');
+    console.log('📱 iOS:', isIOS());
+    console.log('✅ Instal·lada:', isInstalledPWA());
     
+    // Si ja està instal·lada
     if (isInstalledPWA()) {
-        // Ja està instal·lada, no mostrar res
-        console.log('✅ PWA ja instal·lada');
-    } else {
-        // És iOS i NO està instal·lada → Mostrar instruccions
-        installButton.style.display = 'none';
-        iosInstructions.style.display = 'block';
+        console.log('✅ PWA ja instal·lada - No mostrar res');
         
-        // Amagar instruccions si l'usuari ja les ha vist i no vol instal·lar
-        iosInstructions.addEventListener('click', () => {
-            iosInstructions.style.display = 'none';
-            localStorage.setItem('iosInstructionsSeen', 'true');
-        });
+        // Mostrar missatge durant 3 segons i després amagar
+        alreadyInstalled.style.display = 'block';
+        setTimeout(() => {
+            alreadyInstalled.style.display = 'none';
+        }, 3000);
         
-        // No mostrar si ja les ha vist abans
-        if (localStorage.getItem('iosInstructionsSeen') === 'true') {
-            iosInstructions.style.display = 'none';
-        }
+        return; // No fer res més
     }
-} else {
-    // Android o Desktop → Botó normal
-    console.log('🤖 Android/Desktop detectat');
     
-    // El teu codi actual del botó d'instal·lació
-    let deferredPrompt;
-    
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installButton.style.display = 'block';
-    });
-    
-    installButton.addEventListener('click', async () => {
-        if (!deferredPrompt) {
-            alert('⚠️ La instal·lació no està disponible ara mateix.');
-            return;
-        }
+    // Si NO està instal·lada
+    if (isIOS()) {
+        console.log('🍎 iOS detectat - Mostrar instruccions');
         
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
+        // Comprovar si ja ha vist les instruccions avui
+        const today = new Date().toDateString();
+        const lastSeen = localStorage.getItem('iosInstructionsDate');
         
-        if (outcome === 'accepted') {
-            installButton.textContent = '✅ Instal·lada!';
-            installButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        if (lastSeen !== today) {
+            // Mostrar instruccions si no les ha vist avui
             setTimeout(() => {
-                installButton.style.display = 'none';
-            }, 2000);
+                iosInstructions.style.display = 'block';
+            }, 2000); // Esperar 2 segons després de carregar
+            
+            localStorage.setItem('iosInstructionsDate', today);
         }
         
-        deferredPrompt = null;
-    });
-    
-    window.addEventListener('appinstalled', () => {
-        installButton.style.display = 'none';
-    });
-    
-    if (isInstalledPWA()) {
-        installButton.style.display = 'none';
+    } else {
+        console.log('🤖 Android/Desktop - Esperar event d\'instal·lació');
+        // Android o Desktop - Esperar l'event beforeinstallprompt
     }
 }
+
+// ========================================
+// ANDROID: Event d'instal·lació automàtica
+// ========================================
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('💡 Event beforeinstallprompt detectat');
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Mostrar botó només si NO està instal·lada
+    if (!isInstalledPWA()) {
+        installButton.style.display = 'block';
+    }
+});
+
+// Click al botó d'instal·lació
+installButton.addEventListener('click', async () => {
+    if (!deferredPrompt) {
+        console.log('⚠️ No hi ha prompt disponible');
+        alert('⚠️ La instal·lació no està disponible ara mateix.');
+        return;
+    }
+    
+    console.log('📲 Mostrant prompt d\'instal·lació...');
+    deferredPrompt.prompt();
+    
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`👤 Usuari ${outcome === 'accepted' ? 'ha acceptat' : 'ha rebutjat'} la instal·lació`);
+    
+    if (outcome === 'accepted') {
+        installButton.textContent = '✅ Instal·lant...';
+        installButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        
+        setTimeout(() => {
+            installButton.style.display = 'none';
+        }, 1500);
+    }
+    
+    deferredPrompt = null;
+});
+
+// Event quan s'instal·la l'app
+window.addEventListener('appinstalled', () => {
+    console.log('🎉 PWA instal·lada amb èxit!');
+    installButton.style.display = 'none';
+    iosInstructions.style.display = 'none';
+    
+    // Mostrar missatge de confirmació
+    alreadyInstalled.style.display = 'block';
+    setTimeout(() => {
+        alreadyInstalled.style.display = 'none';
+    }, 3000);
+});
+
+// ========================================
+// INICIAR EN CARREGAR LA PÀGINA
+// ========================================
+
+// Executar quan es carrega la pàgina
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPWA);
+} else {
+    initPWA();
+}
+
+console.log('🚀 Sistema PWA carregat');
 </script>
 
   

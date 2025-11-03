@@ -1293,6 +1293,96 @@ body.theme-juvenil {
 .ios-card li {
     margin: 8px 0;
 }
+/* ========================================
+   COLUMNES FIXES PER TAULES DE JUGADORS
+   ======================================== */
+
+/* Primera columna (Nº) sticky */
+table thead tr:first-child th:nth-child(1),
+table tbody tr td:nth-child(1),
+table tfoot tr td:nth-child(1) {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 100 !important;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+}
+
+/* Segona columna (Jugador/Nom) sticky */
+table thead tr:first-child th:nth-child(2),
+table tbody tr td:nth-child(2),
+table tfoot tr td:nth-child(2) {
+    position: sticky !important;
+    left: 60px !important;
+    z-index: 100 !important;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+}
+
+/* Headers primera fila amb fons més fosc */
+table thead tr:first-child th:nth-child(1),
+table thead tr:first-child th:nth-child(2) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    z-index: 101 !important;
+}
+
+/* Segona fila de headers - z-index BAIX perquè passi per SOTA */
+table thead tr:nth-child(2) th {
+    position: relative !important;
+    z-index: 5 !important;
+}
+
+/* Footer també sticky */
+table tfoot tr td:nth-child(1),
+table tfoot tr td:nth-child(2) {
+    background: rgba(34, 211, 238, 0.3) !important;
+    z-index: 100 !important;
+}
+
+/* Ombra a la dreta de la segona columna fixa */
+table thead tr th:nth-child(2)::after,
+table tbody tr td:nth-child(2)::after,
+table tfoot tr td:nth-child(2)::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -4px;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to right, rgba(0,0,0,0.2), transparent);
+    z-index: 100;
+}
+
+@media (max-width: 768px) {
+    table thead tr:first-child th:nth-child(2),
+    table tbody tr td:nth-child(2),
+    table tfoot tr td:nth-child(2) {
+        left: 50px !important;
+    }
+}
+
+/* Contenidor de taula amb scroll */
+.table-container, 
+div:has(> table) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+    /* A mòbil, ajustar amplades */
+    table thead tr th:nth-child(1),
+    table tbody tr td:nth-child(1),
+    table tfoot tr td:nth-child(1) {
+        min-width: 50px;
+        max-width: 70px;
+    }
+    
+    table thead tr th:nth-child(2),
+    table tbody tr td:nth-child(2),
+    table tfoot tr td:nth-child(2) {
+        left: 50px; /* Ajustat per mòbil */
+        min-width: 100px;
+        max-width: 150px;
+    }
+}
     </style>
  <script async src="https://www.googletagmanager.com/gtag/js?id=G-H8JDTNNK0Z"></script>
 <script>
@@ -1613,7 +1703,7 @@ body.theme-juvenil {
     <!-- 2. Heatmap de Tiempo por Cuarto -->
     <div class="card">
         <h2 class="section-title">🔥 Heatmap: Tiempo por Cuarto</h2>
-        <div style="overflow-x: auto;">
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
             <table class="comparison-table" id="timeHeatmapTable"></table>
         </div>
     </div>
@@ -1644,7 +1734,7 @@ body.theme-juvenil {
     <!-- 7. Análisis por Cuarto -->
     <div class="card">
         <h2 class="section-title">📊 Análisis de Rotación por Cuarto</h2>
-        <div style="overflow-x: auto;">
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
             <table class="comparison-table" id="quarterAnalysisTable"></table>
         </div>
     </div>
@@ -1664,7 +1754,7 @@ body.theme-juvenil {
         <p style="font-size: 12px; color: #bae6fd; margin-bottom: 15px;">
             Comparación de rendimiento: Primer cuarto vs Último cuarto
         </p>
-        <div style="overflow-x: auto;">
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
             <table class="comparison-table" id="fatigueAnalysisTable"></table>
         </div>
     </div> -->
@@ -1748,9 +1838,9 @@ body.theme-juvenil {
         <!-- 8. Històric Detallat de Partits -->
         <div class="card">
             <h2 class="section-title">📋 Històric de Tots els Partits</h2>
-            <div style="overflow-x: auto;">
-                <table class="comparison-table" id="playerMatchHistoryTable"></table>
-            </div>
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <table class="comparison-table" id="playerMatchHistoryTable" style="min-width: 800px;"></table>
+</div>
         </div>
 
     </div>
@@ -1789,7 +1879,7 @@ body.theme-juvenil {
     <!-- 5. Parades per Rival -->
     <div class="card">
         <h2 class="section-title">🏆 Rendiment per Rival</h2>
-        <div style="overflow-x: auto;">
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
             <table class="comparison-table" id="goalkeeperByRivalTable"></table>
         </div>
     </div>
@@ -2041,7 +2131,7 @@ body.theme-juvenil {
                     
     <div class="card">
     <h2 class="section-title">📊 Estadísticas Completas del Partido</h2>
-    <div style="overflow-x: auto;">
+    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
         <table class="comparison-table" id="singleMatchStatsTable"></table>
     </div>
     <div style="margin-top: 20px; padding: 15px; background: rgba(34, 211, 238, 0.1); border-radius: 8px; border-left: 4px solid #22d3ee;">
@@ -2156,7 +2246,7 @@ body.theme-juvenil {
         <!-- NUEVO: Historial contra Rivales -->
         <div class="card">
             <h2 class="section-title">🎯 Historial contra Rivales</h2>
-            <div style="overflow-x: auto;">
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                 <table class="comparison-table" id="rivalsHistoryTable"></table>
             </div>
         </div>
@@ -2182,7 +2272,7 @@ body.theme-juvenil {
 
         <div class="card">
     <h2 class="section-title">📊 Comparación de Estadísticas</h2>
-    <div style="overflow-x: auto;">
+    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
         <table class="comparison-table" id="comparisonTable"></table>
     </div>
     <div style="margin-top: 20px; padding: 15px; background: rgba(34, 211, 238, 0.1); border-radius: 8px; border-left: 4px solid #22d3ee;">
@@ -2248,7 +2338,7 @@ body.theme-juvenil {
         <p style="font-size: 12px; color: #bae6fd; margin-bottom: 15px;">
             Media de goles y exclusiones cuando son titulares vs suplentes
         </p>
-        <div style="overflow-x: auto;">
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
             <table class="comparison-table" id="performanceTable"></table>
         </div>
     </div>
@@ -5873,7 +5963,7 @@ function renderSwimRacesStats() {
     return `
         <div class="card">
             <h2 class="section-title">🏊 Estadístiques de Curses Inicials</h2>
-            <div style="overflow-x: auto;">
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                 <table class="comparison-table">
                     <thead>
                         <tr>
@@ -7825,7 +7915,7 @@ function showPlayerPlusMinusDetail() {
             <div style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">
                 ${player.intervals} intervals • Mitjana: ${player.avgPlusMinus > 0 ? '+' : ''}${player.avgPlusMinus} per interval
             </div>
-            <div style="overflow-x: auto;">
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                 <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
                     <thead>
                         <tr style="background: rgba(255,255,255,0.1);">
@@ -9157,7 +9247,7 @@ function renderSwimRacesStats() {
     return `
         <div class="card">
             <h2 class="section-title">🏊 Estadístiques de Curses Inicials</h2>
-            <div style="overflow-x: auto;">
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                 <table class="comparison-table">
                     <thead>
                         <tr>
@@ -9673,7 +9763,7 @@ function initializePlayerSelector() {
             <p style="color: #bae6fd; margin-bottom: 20px; font-size: 14px;">
                 Fes clic sobre un jugador per veure les seves estadístiques detallades
             </p>
-            <div style="overflow-x: auto;">
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                 <table class="comparison-table" id="comparisonTableIndividual"></table>
             </div>
         </div>
@@ -9813,9 +9903,9 @@ function showIndividualPlayerDetails(player) {
         
         <div class="card">
             <h2 class="section-title">📊 Rendiment per Rival</h2>
-            <div style="overflow-x: auto;">
-                <table class="comparison-table" id="goalkeeperByRivalTable"></table>
-            </div>
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+    <table class="comparison-table" id="goalkeeperByRivalTable" style="min-width: 800px;"></table>
+</div>
         </div>
         
         <div class="card">
@@ -9884,7 +9974,7 @@ function showIndividualPlayerDetails(player) {
         
         <div class="card">
             <h2 class="section-title">📜 Historial de Partits</h2>
-            <div style="overflow-x: auto;">
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                 <table class="comparison-table" id="playerMatchHistoryTable"></table>
             </div>
         </div>
@@ -11560,34 +11650,47 @@ function displayUpcomingMatches() {
         const locationText = isHome ? 'Local' : 'Visitant';
         
         html += `
-            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid #22d3ee;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <div style="font-size: 14px; color: #bae6fd; margin-bottom: 5px;">
-                            📅 ${date} ${time ? `• ⏰ ${time}` : ''}
-                        </div>
-                        <div style="font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                <div style="background: rgba(34, 211, 238, 0.1); border-left: 4px solid #22d3ee; border-radius: 8px; padding: 12px;">
+                    <!-- Data i hora -->
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">
+                        📅 ${date} ${time ? `• ⏰ ${time}` : ''}
+                    </div>
+                    
+                    <!-- Equips en vertical -->
+                    <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+                        <!-- Equip Local -->
+                        <div style="font-size: 15px; font-weight: ${isHome ? 'bold' : 'normal'}; color: ${isHome ? '#bae6fd' : '#94a3b8'}; display: flex; align-items: center; gap: 8px; justify-content: center; text-align: center;">
                             ${homeLogoHtml}
                             <span>${homeTeam}</span>
-                            <span style="color: #67e8f9;">vs</span>
-                            <span>${awayTeam}</span>
+                        </div>
+                        
+                        <!-- VS i icona -->
+                        <div style="display: flex; align-items: center; gap: 12px; margin: 4px 0;">
+                            <span style="color: #67e8f9; font-size: 18px;">vs</span>
+                            <span style="font-size: 32px;">${locationIcon}</span>
+                        </div>
+                        
+                        <!-- Equip Visitant -->
+                        <div style="font-size: 15px; font-weight: ${!isHome ? 'bold' : 'normal'}; color: ${!isHome ? '#bae6fd' : '#94a3b8'}; display: flex; align-items: center; gap: 8px; justify-content: center; text-align: center;">
                             ${awayLogoHtml}
-                            <span style="font-size: 32px; line-height: 1;">${locationIcon}</span>
+                            <span>${awayTeam}</span>
                         </div>
-                        <div style="font-size: 13px; color: #94a3b8; margin-top: 5px;">
-                            ${locationIcon} ${locationText}
-                        </div>
-                        ${venue ? `<div style="font-size: 12px; color: #94a3b8; margin-top: 3px;">📍 ${venue}</div>` : ''}
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <a href="${url}" target="_blank" rel="noopener noreferrer" style="background: #06b6d4; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; text-align: center;">
+                    
+                    <!-- Ubicació i estat -->
+                    ${venue ? `<div style="font-size: 11px; color: #94a3b8; margin-top: 8px; text-align: center;">📍 ${venue}</div>` : ''}
+                    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px; text-align: center;">
+                        ${locationIcon} ${locationText}
+                    </div>
+                    
+                    <!-- Botó -->
+                    <div style="text-align: center; margin-top: 12px;">
+                        <a href="${url}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: #06b6d4; color: white; padding: 8px 20px; border-radius: 6px; text-decoration: none; font-size: 13px;">
                             Veure més →
                         </a>
-                        
                     </div>
                 </div>
-            </div>
-        `;
+            `;
     
     // Crear funció per aquest partit
       
@@ -11756,28 +11859,36 @@ function displayLastResults() {
         const homeWeight = homeWon ? '600' : '500';
         const awayWeight = awayWon ? '600' : '500';
         
-        html += `
-            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid ${borderColor};">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <div style="flex: 1; min-width: 200px;">
-                        <div style="font-size: 12px; color: #bae6fd; margin-bottom: 8px;">
-                            ${resultIcon} ${resultText}
-                        </div>
-                        <div style="font-size: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                            <div style="display: flex; align-items: center; color: ${homeColor}; font-weight: ${homeWeight};">
-                                ${homeLogoHtml}
-                                <span>${homeTeam}</span>
-                            </div>
-                            <div style="background: rgba(34, 211, 238, 0.2); padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 20px; color: #22d3ee; min-width: 80px; text-align: center;">
-                                ${homeScore} - ${awayScore}
-                            </div>
-                            <div style="display: flex; align-items: center; color: ${awayColor}; font-weight: ${awayWeight};">
-                                <span>${awayTeam}</span>
-                                ${awayLogoHtml}
-                            </div>
-                        </div>
+         html += `
+            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border-left: 4px solid ${borderColor};">
+                <!-- Indicador de resultat -->
+                <div style="font-size: 12px; color: #bae6fd; margin-bottom: 12px;">
+                    ${resultIcon} ${resultText}
+                </div>
+                
+                <!-- Equips i marcador en vertical -->
+                <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+                    <!-- Equip Local -->
+                    <div style="display: flex; align-items: center; gap: 8px; color: ${homeColor}; font-weight: ${homeWeight}; font-size: 15px; width: 100%; justify-content: center; text-align: center;">
+                        ${homeLogoHtml}
+                        <span>${homeTeam}</span>
                     </div>
-                    <a href="${url}" target="_blank" rel="noopener noreferrer" style="background: #06b6d4; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px;">
+                    
+                    <!-- Marcador gran -->
+                    <div style="background: rgba(34, 211, 238, 0.2); padding: 10px 24px; border-radius: 8px; font-weight: bold; font-size: 28px; color: #22d3ee; margin: 8px 0;">
+                        ${homeScore} - ${awayScore}
+                    </div>
+                    
+                    <!-- Equip Visitant -->
+                    <div style="display: flex; align-items: center; gap: 8px; color: ${awayColor}; font-weight: ${awayWeight}; font-size: 15px; width: 100%; justify-content: center; text-align: center;">
+                        ${awayLogoHtml}
+                        <span>${awayTeam}</span>
+                    </div>
+                </div>
+                
+                <!-- Botó detalls -->
+                <div style="text-align: center; margin-top: 12px;">
+                    <a href="${url}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: #06b6d4; color: white; padding: 8px 20px; border-radius: 6px; text-decoration: none; font-size: 13px;">
                         Detalls →
                     </a>
                 </div>
@@ -11912,7 +12023,7 @@ function displayPlayerComparison() {
     
     // Taula HTML
     let html = `
-        <div style="overflow-x: auto;">
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
             <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                 <thead>
                     <tr style="background: rgba(255,255,255,0.05);">
@@ -12429,50 +12540,56 @@ const ourLogoHtml_res = ourLogo_res ? `<img src="${ourLogo_res}" style="width: 2
 const rivalLogoHtml_res = rivalLogo_res ? `<img src="${rivalLogo_res}" style="width: 24px; height: 24px; object-fit: contain; background: white; border-radius: 4px; padding: 2px; margin-right: 8px; vertical-align: middle;" onerror="this.style.display='none';">` : '';
                 
                 html += `
-                    <div style="background: ${bgColor}; border-left: 4px solid ${borderColor}; border-radius: 8px; padding: 15px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                            <div style="flex: 1; min-width: 200px;">
-                                <div style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">
-                                    ${date} ${venue ? '• ' + venue : ''}
+                    <div style="background: ${bgColor}; border-left: 4px solid ${borderColor}; border-radius: 8px; padding: 12px;">
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- Data i lloc -->
+                            <div style="font-size: 11px; color: #94a3b8;">
+                                ${date} ${venue ? '• ' + venue : ''}
+                            </div>
+                            
+                            <!-- Equips -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                                <div style="flex: 1; min-width: 0;">
+                                    ${isHome ? `
+                                        <div style="font-size: 14px; font-weight: bold; color: #bae6fd; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                            ${ourLogoHtml_res}
+                                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">CN Terrassa</span>
+                                        </div>
+                                        <div style="font-size: 13px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+                                            <span>vs</span>
+                                            ${rivalLogoHtml_res}
+                                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${rival}</span>
+                                        </div>
+                                    ` : `
+                                        <div style="font-size: 14px; font-weight: bold; color: #bae6fd; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                            ${rivalLogoHtml_res}
+                                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${rival}</span>
+                                        </div>
+                                        <div style="font-size: 13px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+                                            <span>vs</span>
+                                            ${ourLogoHtml_res}
+                                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">CN Terrassa</span>
+                                        </div>
+                                    `}
+                                    <div style="font-size: 11px; color: #64748b; margin-top: 4px;">
+                                        ${isHome ? '🏠 Local' : '✈️ Visitant'}
+                                    </div>
                                 </div>
                                 
-								${isHome ? `
-    <div style="font-size: 16px; font-weight: bold; color: #bae6fd; display: flex; align-items: center;">
-        ${ourLogoHtml_res}
-        <span>CN Terrassa</span>
-    </div>
-    <div style="font-size: 14px; color: #94a3b8; margin-top: 2px; display: flex; align-items: center;">
-        <span style="margin-right: 8px;">vs</span>
-        ${rivalLogoHtml_res}
-        <span>${rival}</span>
-    </div>
-` : `
-    <div style="font-size: 16px; font-weight: bold; color: #bae6fd; display: flex; align-items: center;">
-        ${rivalLogoHtml_res}
-        <span>${rival}</span>
-    </div>
-    <div style="font-size: 14px; color: #94a3b8; margin-top: 2px; display: flex; align-items: center;">
-        <span style="margin-right: 8px;">vs</span>
-        ${ourLogoHtml_res}
-        <span>CN Terrassa</span>
-    </div>
-`}
-                                
-								<div style="font-size: 12px; color: #64748b; margin-top: 5px;">
-                                    ${isHome ? '🏠 Local' : '✈️ Visitant'}
+                                <!-- Marcador -->
+                                <div style="text-align: center; flex-shrink: 0;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #bae6fd;">
+                                        ${isHome ? `${ourScore} - ${theirScore}` : `${theirScore} - ${ourScore}`}
+                                    </div>
+                                    <div style="font-size: 16px; margin-top: 2px;">
+                                        ${resultIcon}
+                                    </div>
                                 </div>
                             </div>
-                            <div style="text-align: center; min-width: 120px;">
-                                <div style="font-size: 28px; font-weight: bold; color: #bae6fd;">
-    ${isHome ? `${ourScore} - ${theirScore}` : `${theirScore} - ${ourScore}`}
-</div>
-
-                                <div style="font-size: 18px; margin-top: 5px;">
-                                    ${resultIcon}
-                                </div>
-                            </div>
-                            <div style="min-width: 100px; text-align: right;">
-                                <a href="${match.url || '#'}" target="_blank" style="display: inline-block; padding: 8px 16px; background: rgba(34, 211, 238, 0.2); color: #22d3ee; border-radius: 6px; text-decoration: none; font-size: 13px;">
+                            
+                            <!-- Botó acta -->
+                            <div style="text-align: center;">
+                                <a href="${match.url || '#'}" target="_blank" style="display: inline-block; padding: 8px 20px; background: rgba(34, 211, 238, 0.2); color: #22d3ee; border-radius: 6px; text-decoration: none; font-size: 12px;">
                                     📊 Acta
                                 </a>
                             </div>
@@ -12569,21 +12686,22 @@ function mostrarClassificacio(ranking) {
     const container = document.getElementById('actawp-ranking-container');
     
     let html = `
-        <table class="ranking-table">
-            <thead>
-                <tr>
-                    <th style="width: 60px;">Pos</th>
-                    <th style="text-align: left; padding-left: 15px;">Equip</th>
-                    <th>PJ</th>
-                    <th>G</th>
-                    <th>E</th>
-                    <th>P</th>
-                    <th>GF</th>
-                    <th>GC</th>
-                    <th>Pts</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -12px; padding: 0 12px;">
+            <table class="ranking-table" style="min-width: 600px;">
+                <thead>
+                    <tr>
+                        <th style="width: 50px; padding: 10px 6px; font-size: 11px;">Pos</th>
+                        <th style="text-align: left; padding-left: 12px; min-width: 160px; font-size: 11px;">Equip</th>
+                        <th style="padding: 10px 6px; font-size: 11px;">PJ</th>
+                        <th style="padding: 10px 6px; font-size: 11px;">G</th>
+                        <th style="padding: 10px 6px; font-size: 11px;">E</th>
+                        <th style="padding: 10px 6px; font-size: 11px;">P</th>
+                        <th style="padding: 10px 6px; font-size: 11px;">GF</th>
+                        <th style="padding: 10px 6px; font-size: 11px;">GC</th>
+                        <th style="padding: 10px 6px; font-size: 11px;">Pts</th>
+                    </tr>
+                </thead>
+                <tbody>
     `;
     
     ranking.forEach(team => {
@@ -12593,39 +12711,39 @@ function mostrarClassificacio(ranking) {
         // Badge per les primeres 3 posicions
         let posDisplay = team.posicio;
         if (team.posicio === '1') {
-            posDisplay = `<span class="position-badge gold">${team.posicio}</span>`;
+            posDisplay = `<span class="position-badge gold" style="width: 22px; height: 22px; line-height: 22px; font-size: 11px;">${team.posicio}</span>`;
         } else if (team.posicio === '2') {
-            posDisplay = `<span class="position-badge silver">${team.posicio}</span>`;
+            posDisplay = `<span class="position-badge silver" style="width: 22px; height: 22px; line-height: 22px; font-size: 11px;">${team.posicio}</span>`;
         } else if (team.posicio === '3') {
-            posDisplay = `<span class="position-badge bronze">${team.posicio}</span>`;
+            posDisplay = `<span class="position-badge bronze" style="width: 22px; height: 22px; line-height: 22px; font-size: 11px;">${team.posicio}</span>`;
         }
         
-        // Logo
+        // Logo més petit per mòbil
         const logoHtml = team.logo 
-            ? `<img src="${team.logo}" class="team-logo" alt="${team.equip}" onerror="this.style.display='none'">` 
-            : '<div style="width: 30px;"></div>';
+            ? `<img src="${team.logo}" class="team-logo" style="width: 22px; height: 22px; flex-shrink: 0;" alt="${team.equip}" onerror="this.style.display='none'">` 
+            : '<div style="width: 22px; flex-shrink: 0;"></div>';
         
         html += `
             <tr class="${rowClass}">
-                <td style="font-weight: bold; color: #22d3ee;">${posDisplay}</td>
-                <td>
-                    <div class="team-cell">
+                <td style="font-weight: bold; color: #22d3ee; padding: 10px 6px; font-size: 12px;">${posDisplay}</td>
+                <td style="padding: 10px 8px;">
+                    <div class="team-cell" style="gap: 8px; padding-left: 8px !important; min-width: 160px;">
                         ${logoHtml}
-                        <span style="color: #e0f2fe; font-weight: 500;">${team.equip}</span>
+                        <span style="color: #e0f2fe; font-weight: 500; font-size: 12px;">${team.equip}</span>
                     </div>
                 </td>
-                <td>${team.partits || 0}</td>
-                <td class="stat-wins">${team.guanyats || 0}</td>
-                <td class="stat-draws">${team.empatats || 0}</td>
-                <td class="stat-losses">${team.perduts || 0}</td>
-                <td>${team.gols_favor || 0}</td>
-                <td>${team.gols_contra || 0}</td>
-                <td class="stat-points">${team.punts || 0}</td>
+                <td style="padding: 10px 6px; font-size: 12px;">${team.partits || 0}</td>
+                <td class="stat-wins" style="padding: 10px 6px; font-size: 12px;">${team.guanyats || 0}</td>
+                <td class="stat-draws" style="padding: 10px 6px; font-size: 12px;">${team.empatats || 0}</td>
+                <td class="stat-losses" style="padding: 10px 6px; font-size: 12px;">${team.perduts || 0}</td>
+                <td style="padding: 10px 6px; font-size: 12px;">${team.gols_favor || 0}</td>
+                <td style="padding: 10px 6px; font-size: 12px;">${team.gols_contra || 0}</td>
+                <td class="stat-points" style="padding: 10px 6px; font-size: 13px; font-weight: bold;">${team.punts || 0}</td>
             </tr>
         `;
     });
     
-    html += '</tbody></table>';
+    html += '</tbody></table></div>';
     container.innerHTML = html;
     console.log('✅ Classificació mostrada correctament');
 }

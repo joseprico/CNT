@@ -1883,7 +1883,7 @@ body.theme-juvenil {
             
             <!-- PRÒXIMS PARTITS -->
             <div class="card" style="background: rgba(0,0,0,0.3); margin-top: 20px;">
-                <h3 class="section-title">📅 Pròxims Partits</h3>
+			   <h3 class="section-title">📅 Pròxims Partits</h3>
                 <div id="actawp-upcoming-matches">
                     <p style="color: #bae6fd;">No hi ha pròxims partits programats</p>
                 </div>
@@ -11430,7 +11430,105 @@ function displayUpcomingMatches() {
     }
     
     let html = '<div style="display: flex; flex-direction: column; gap: 15px;">';
+	// Botó per descarregar tots els partits
+    html += `
+        <div style="text-align: center; margin-bottom: 15px;">
+            <button onclick="window.downloadAllUpcomingMatches()" style="padding: 10px 20px; background: rgba(168, 85, 247, 0.2); color: #a855f7; border: 2px solid #a855f7; border-radius: 8px; font-size: 15px; cursor: pointer; font-family: inherit; font-weight: bold;">
+                📅 Descarregar tots els partits al teu calendari Google o Apple
+            </button>
+        </div>
+    `;
+    // Funció per generar fitxer ICS
+ function generateICS(match, isHome, rival) {
+        let dateStr = match.date || match.date_time || '';
+        const timeStr = match.time || '';
+        const venue = match.venue || '';
+        
+        // Eliminar dia de la setmana: "Dom 09/11/2025" -> "09/11/2025"
+        dateStr = dateStr.replace(/^[A-Za-zàèéíòóúçÀÈÉÍÒÓÚÇ]+\s+/, '');
+        
+        let dtstart = '';
+        let dtend = '';
+        
+        if (dateStr && timeStr && dateStr.includes('/') && timeStr.includes(':')) {
+            const dateParts = dateStr.trim().split('/');
+            const timeParts = timeStr.trim().split(':');
+            
+            if (dateParts.length === 3 && timeParts.length >= 2) {
+                const day = parseInt(dateParts[0], 10);
+                const month = parseInt(dateParts[1], 10) - 1; // 0-indexed
+                const year = parseInt(dateParts[2], 10);
+                const hours = parseInt(timeParts[0], 10);
+                const minutes = parseInt(timeParts[1], 10);
+                
+                // Validar que tots els valors són números vàlids
+                if (!isNaN(day) && !isNaN(month) && !isNaN(year) && !isNaN(hours) && !isNaN(minutes)) {
+                    const startDate = new Date(year, month, day, hours, minutes, 0);
+                    
+                    // Validar que la data és vàlida
+                    if (startDate && startDate.getTime && !isNaN(startDate.getTime())) {
+                        const endDate = new Date(startDate.getTime() + 90 * 60000); // +90 minuts
+                        
+                        try {
+                            dtstart = startDate.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+                            dtend = endDate.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+                        } catch (e) {
+                            console.error('Error converting date to ISO:', e);
+                        }
+                    }
+                }
+            }
+        }
+        
+        const homeTeam = match.home_team || match.team1 || '?';
+        const awayTeam = match.away_team || match.team2 || '?';
+        const summary = `${homeTeam} vs ${awayTeam}`;
+        const location = venue || '';
+        const description = `Partit de waterpolo - ${isHome ? 'Local' : 'Visitant'}`;
+        const uid = `match-${Date.now()}-${Math.random().toString(36).substr(2, 9)}@cnterrassa.com`;
+        const dtstamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+        
+        const icsLines = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//CN Terrassa//Water Polo Stats//EN',
+            'CALSCALE:GREGORIAN',
+            'METHOD:PUBLISH',
+            'BEGIN:VEVENT',
+            `UID:${uid}`,
+            `DTSTAMP:${dtstamp}`
+        ];
+        
+        if (dtstart) icsLines.push(`DTSTART:${dtstart}`);
+        if (dtend) icsLines.push(`DTEND:${dtend}`);
+        
+        icsLines.push(
+            `SUMMARY:${summary}`,
+            location ? `LOCATION:${location}` : null,
+            `DESCRIPTION:${description}`,
+            'STATUS:CONFIRMED',
+            'END:VEVENT',
+            'END:VCALENDAR'
+        );
+        
+        return icsLines.filter(line => line !== null).join('\r\n');
+    }
     
+    function downloadICS(match, isHome, rival) {
+        const icsContent = generateICS(match, isHome, rival);
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        
+        const date = match.date || match.date_time || 'partit';
+        const fileName = `CNTerrassa-${date.replace(/\//g, '-')}.ics`;
+        link.download = fileName;
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    }
     matches.forEach((match, index) => {
         const date = match.date || match.date_time || 'Data desconeguda';
         const time = match.time || '';
@@ -11481,16 +11579,113 @@ function displayUpcomingMatches() {
                         </div>
                         ${venue ? `<div style="font-size: 12px; color: #94a3b8; margin-top: 3px;">📍 ${venue}</div>` : ''}
                     </div>
-                    <a href="${url}" target="_blank" rel="noopener noreferrer" style="background: #06b6d4; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px;">
-                        Veure més →
-                    </a>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <a href="${url}" target="_blank" rel="noopener noreferrer" style="background: #06b6d4; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 14px; text-align: center;">
+                            Veure més →
+                        </a>
+                        
+                    </div>
                 </div>
             </div>
         `;
-    });
     
+    // Crear funció per aquest partit
+      
+	});
     html += '</div>';
     container.innerHTML = html;
+	// Guardar matches en una variable accessible globalment
+    const matchesToDownload = matches;
+    
+    // Funció global per descarregar tots els partits en UN SOL FITXER
+    window.downloadAllUpcomingMatches = function() {
+        // Començar el fitxer ICS
+        let icsLines = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//CN Terrassa//Water Polo Stats//EN',
+            'CALSCALE:GREGORIAN',
+            'METHOD:PUBLISH'
+        ];
+        
+        // Afegir cada partit com un VEVENT
+        matchesToDownload.forEach(match => {
+            const homeTeam = match.home_team || match.team1 || '?';
+            const awayTeam = match.away_team || match.team2 || '?';
+            const isHome = homeTeam.toUpperCase().includes('TERRASSA');
+            const rival = isHome ? awayTeam : homeTeam;
+            
+            let dateStr = match.date || match.date_time || '';
+            const timeStr = match.time || '';
+            const venue = match.venue || '';
+            
+            // Eliminar dia de la setmana
+            dateStr = dateStr.replace(/^[A-Za-zàèéíòóúçÀÈÉÍÒÓÚÇ]+\s+/, '');
+            
+            let dtstart = '';
+            let dtend = '';
+            
+            if (dateStr && timeStr && dateStr.includes('/') && timeStr.includes(':')) {
+                const dateParts = dateStr.trim().split('/');
+                const timeParts = timeStr.trim().split(':');
+                
+                if (dateParts.length === 3 && timeParts.length >= 2) {
+                    const day = parseInt(dateParts[0], 10);
+                    const month = parseInt(dateParts[1], 10) - 1;
+                    const year = parseInt(dateParts[2], 10);
+                    const hours = parseInt(timeParts[0], 10);
+                    const minutes = parseInt(timeParts[1], 10);
+                    
+                    if (!isNaN(day) && !isNaN(month) && !isNaN(year) && !isNaN(hours) && !isNaN(minutes)) {
+                        const startDate = new Date(year, month, day, hours, minutes, 0);
+                        
+                        if (startDate && !isNaN(startDate.getTime())) {
+                            const endDate = new Date(startDate.getTime() + 90 * 60000);
+                            
+                            try {
+                                dtstart = startDate.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+                                dtend = endDate.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+                            } catch (e) {
+                                console.error('Error converting date:', e);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Afegir VEVENT per aquest partit
+            const summary = `${homeTeam} vs ${awayTeam}`;
+            const description = `Partit de waterpolo - ${isHome ? 'Local' : 'Visitant'}`;
+            const uid = `match-${dateStr.replace(/\//g, '')}-${timeStr.replace(/:/g, '')}-${Math.random().toString(36).substr(2, 9)}@cnterrassa.com`;
+            const dtstamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+            
+            icsLines.push('BEGIN:VEVENT');
+            icsLines.push(`UID:${uid}`);
+            icsLines.push(`DTSTAMP:${dtstamp}`);
+            if (dtstart) icsLines.push(`DTSTART:${dtstart}`);
+            if (dtend) icsLines.push(`DTEND:${dtend}`);
+            icsLines.push(`SUMMARY:${summary}`);
+            if (venue) icsLines.push(`LOCATION:${venue}`);
+            icsLines.push(`DESCRIPTION:${description}`);
+            icsLines.push('STATUS:CONFIRMED');
+            icsLines.push('END:VEVENT');
+        });
+        
+        // Tancar el fitxer ICS
+        icsLines.push('END:VCALENDAR');
+        
+        // Crear i descarregar el fitxer
+        const icsContent = icsLines.join('\r\n');
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'CNTerrassa-ProximsPartits.ics';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    };
 }
 
 function displayLastResults() {
@@ -11592,6 +11787,7 @@ function displayLastResults() {
     
     html += '</div>';
     container.innerHTML = html;
+	
 }
 function displayActawpData() {
     if (!actawpData) {
@@ -12034,7 +12230,9 @@ function displayActawpMatches() {
                normalized === 'C.N.TERRASSA' ||
                normalized.match(/^C\.?N\.?\s*TERRASSA\s*A?$/);
     }
-    
+    // Funció per generar fitxer ICS
+
+	
     // ==========================================
     // PRÒXIMS PARTITS
     // ==========================================
@@ -12126,14 +12324,21 @@ const rivalLogoHtml = rivalLogo ? `<img src="${rivalLogo}" style="width: 24px; h
         ${isHome ? 'Local' : 'Visitant'}
     </div>
 </div>
-                        <div style="min-width: 100px; text-align: right;">
-                            <a href="${match.url || '#'}" target="_blank" style="display: inline-block; padding: 8px 16px; background: rgba(34, 211, 238, 0.2); color: #22d3ee; border-radius: 6px; text-decoration: none; font-size: 13px;">
-                                ℹ️ Detalls
-                            </a>
-                        </div>
+                       <div style="min-width: 100px; text-align: right; display: flex; flex-direction: column; gap: 8px;">
+    <a href="${match.url || '#'}" target="_blank" style="display: inline-block; padding: 8px 16px; background: rgba(34, 211, 238, 0.2); color: #22d3ee; border-radius: 6px; text-decoration: none; font-size: 13px; text-align: center;">
+        ℹ️ Detalls
+    </a>
+    <button onclick="window.downloadMatchICS_${index}()" style="padding: 8px 16px; background: rgba(168, 85, 247, 0.2); color: #a855f7; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-family: inherit;">
+        📅 Calendari
+    </button>
+</div>
                     </div>
                 </div>
             `;
+			// Crear funció específica per aquest partit
+            window[`downloadMatchICS_${index}`] = function() {
+                downloadICS(match, isHome, rival);
+            };
         });
         
         html += '</div>';
@@ -13200,16 +13405,7 @@ console.log('🚀 Sistema PWA carregat');
 
   
   </script>
-   <script>
-    // 🔒 Bloqueo de clic derecho y atajos
-    document.addEventListener("contextmenu", event => event.preventDefault());
-    document.addEventListener("keydown", event => {
-      if ((event.ctrlKey && ["s", "u"].includes(event.key.toLowerCase())) ||
-          event.key === "F12") {
-        event.preventDefault();
-      }
-    });
-    </script>
+ 
 <script>
 // 🎯 PWA Service Worker Registration
 if ('serviceWorker' in navigator) {
@@ -13223,6 +13419,8 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+
+
 
 // 📱 PWA Install Prompt
 let deferredPrompt;
@@ -13273,6 +13471,17 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
     installButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
     installButton.style.cursor = 'default';
 }
+
 </script>
+  <script>
+    // 🔒 Bloqueo de clic derecho y atajos
+    document.addEventListener("contextmenu", event => event.preventDefault());
+    document.addEventListener("keydown", event => {
+      if ((event.ctrlKey && ["s", "u"].includes(event.key.toLowerCase())) ||
+          event.key === "F12") {
+        event.preventDefault();
+      }
+    });
+    </script>
 </body>
 </html>

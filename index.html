@@ -59,7 +59,74 @@ body {
     transition: all 0.3s;
     animation: pulse-install 2s infinite;
 }
+Perfecte! Aleshores deixa només les columnes Nº i Jugador fixes.
+El CSS que necessites és aquest (substitueix la part de singleMatchStatsTable):
+css/* Fix específic per singleMatchStatsTable - NOMÉS Nº i Jugador fixes */
+#singleMatchStatsTable thead tr:first-child th:nth-child(1),
+#singleMatchStatsTable thead tr:first-child th:nth-child(2),
+#singleMatchStatsTable tbody td:nth-child(1),
+#singleMatchStatsTable tbody td:nth-child(2) {
+    position: sticky;
+    background: rgba(30, 58, 138, 0.95);
+    z-index: 10;
+}
 
+#singleMatchStatsTable thead tr:first-child th:nth-child(1),
+#singleMatchStatsTable tbody td:nth-child(1) {
+    left: 0;
+    min-width: 50px;
+}
+
+#singleMatchStatsTable thead tr:first-child th:nth-child(2),
+#singleMatchStatsTable tbody td:nth-child(2) {
+    left: 50px;
+    min-width: 120px;
+}
+
+/* Headers de la primera fila amb z-index més alt */
+#singleMatchStatsTable thead tr:first-child th:nth-child(1),
+#singleMatchStatsTable thead tr:first-child th:nth-child(2) {
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 12;
+}
+
+/* Sombra només per tbody */
+#singleMatchStatsTable tbody td:nth-child(2)::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -10px;
+    bottom: 0;
+    width: 10px;
+    background: linear-gradient(to right, rgba(0,0,0,0.2), transparent);
+    pointer-events: none;
+}
+
+/* Tema CADET per singleMatchStatsTable */
+body.theme-cadet #singleMatchStatsTable thead tr:first-child th:nth-child(1),
+body.theme-cadet #singleMatchStatsTable thead tr:first-child th:nth-child(2),
+body.theme-cadet #singleMatchStatsTable tbody td:nth-child(1),
+body.theme-cadet #singleMatchStatsTable tbody td:nth-child(2) {
+    background: rgba(30, 41, 59, 0.95);
+}
+
+body.theme-cadet #singleMatchStatsTable thead tr:first-child th:nth-child(1),
+body.theme-cadet #singleMatchStatsTable thead tr:first-child th:nth-child(2) {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Tema JUVENIL per singleMatchStatsTable */
+body.theme-juvenil #singleMatchStatsTable thead tr:first-child th:nth-child(1),
+body.theme-juvenil #singleMatchStatsTable thead tr:first-child th:nth-child(2),
+body.theme-juvenil #singleMatchStatsTable tbody td:nth-child(1),
+body.theme-juvenil #singleMatchStatsTable tbody td:nth-child(2) {
+    background: rgba(30, 58, 90, 0.95);
+}
+
+body.theme-juvenil #singleMatchStatsTable thead tr:first-child th:nth-child(1),
+body.theme-juvenil #singleMatchStatsTable thead tr:first-child th:nth-child(2) {
+    background: rgba(0, 0, 0, 0.5);
+}
 .install-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(6, 182, 212, 0.6);
@@ -2125,7 +2192,7 @@ body.theme-juvenil {
         • Gol normal/contraatac/H+/boya: +2 | Gol penalty: +1<br>
         • Assistència: +1 | Robatori: +1 | Blocatge: +1 | Parada: +1 | Parada penal: +2 | Falta rebuda: +1<br><br>
         <strong style="color: #ef4444;">Accions Negatives:</strong><br>
-        • Exclusió (normal o penalty): -1 | Penalty fallat: -2 | Pèrdua: -0.5 | Tir fallat: -0.5 |Infraccions 2m(-0.5)| Gol rebut (porters): -0.5
+        • Exclusió (normal o penalty): -1 | Penalty fallat: -2 | Pèrdua: -0.5 | Tir fallat: -0.5 |Infraccions 2m(-0.5)| Contrafalta: -0.75 | Gol rebut (porters): -0.5
     </div>
 </div>
 </div>
@@ -3451,15 +3518,16 @@ function sortSingleMatchTable(column) {
    };
     table.innerHTML = `
      <thead>
-    <tr>
-        <th rowspan="2" onclick="sortSingleMatchTable('num')" style="cursor: pointer; vertical-align: middle;">Nº${getSortIndicator('num')}</th>
-        <th rowspan="2" onclick="sortSingleMatchTable('nom')" style="cursor: pointer; vertical-align: middle;">Jugador${getSortIndicator('nom')}</th>
-        <th rowspan="2" onclick="sortSingleMatchTable('gols')" style="cursor: pointer; vertical-align: middle;">Gols${getSortIndicator('gols')}</th>
+<tr>
+    <th rowspan="2" onclick="sortSingleMatchTable('num')" style="cursor: pointer; vertical-align: middle;">Nº${getSortIndicator('num')}</th>
+    <th rowspan="2" onclick="sortSingleMatchTable('nom')" style="cursor: pointer; vertical-align: middle;">Jugador${getSortIndicator('nom')}</th>
+    <th rowspan="2" onclick="sortSingleMatchTable('gols')" style="cursor: pointer; vertical-align: middle;">Gols${getSortIndicator('gols')}</th>
+    
         <th colspan="5" style="background: rgba(34, 211, 238, 0.2); text-align: center;" title="Tipus de Gols">🎯 TIPUS GOLS</th>
         <th colspan="6" style="background: rgba(34, 197, 94, 0.2); text-align: center;" title="Accions Positives">✅ POSITIVES</th>
-        <th colspan="6" style="background: rgba(239, 68, 68, 0.2); text-align: center;" title="Accions Negatives">❌ NEGATIVES</th>
-        <th rowspan="2" onclick="sortSingleMatchTable('eficiencia')" style="cursor: pointer; vertical-align: middle;">Efic%${getSortIndicator('eficiencia')}</th>
-        <th rowspan="2" onclick="sortSingleMatchTable('valor')" style="cursor: pointer; vertical-align: middle;">⭐ Valor${getSortIndicator('valor')}</th>
+        <th colspan="5" style="background: rgba(239, 68, 68, 0.2); text-align: center;" title="Accions Negatives">❌ NEGATIVES</th>
+		<th rowspan="2" onclick="sortSingleMatchTable('eficiencia')" style="cursor: pointer; vertical-align: middle;">Efic%${getSortIndicator('eficiencia')}</th>
+             <th rowspan="2" onclick="sortSingleMatchTable('valor')" style="cursor: pointer; vertical-align: middle;">⭐ Valor${getSortIndicator('valor')}</th>
     </tr>
     <tr style="font-size: 11px;">
         <!-- Tipus de Gols (5 columnes) -->
@@ -8677,7 +8745,7 @@ function renderComparisonTable(players, clickable = false, tableId = 'comparison
         <th rowspan="2" onclick="sortTable('name', '${tableId}')" style="cursor: pointer; vertical-align: middle;">Jugador${getSortIndicator('name')}</th>
         <th rowspan="2" onclick="sortTable('partidos', '${tableId}')" style="cursor: pointer; vertical-align: middle;">Partidos${getSortIndicator('partidos')}</th>
         <th rowspan="2" onclick="sortTable('gols', '${tableId}')" style="cursor: pointer; vertical-align: middle;">Goles${getSortIndicator('gols')}</th>
-        <th colspan="5" style="background: rgba(34, 211, 238, 0.2); text-align: center;" title="Tipus de Gols">🎯 TIPUS GOLS</th>
+        <th colspan="5" style="background: rgba(34, 211, 238, 0.2); text-align: center;" title="Tipus de Gols">🎯 TIPUS GOLSs</th>
         <th colspan="5" style="background: rgba(34, 197, 94, 0.2); text-align: center;" title="Accions Positives">✅ POSITIVES</th>
         <th colspan="6" style="background: rgba(239, 68, 68, 0.2); text-align: center;" title="Accions Negatives">❌ NEGATIVES</th>
         <th rowspan="2" onclick="sortTable('eficienciaTir', '${tableId}')" style="cursor: pointer; vertical-align: middle;">🎯 Efic.${getSortIndicator('eficienciaTir')}</th>

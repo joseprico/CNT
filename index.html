@@ -365,17 +365,59 @@ body.theme-juvenil {
         .period-label { font-size: 14px; color: #bae6fd; margin-bottom: 8px; }
         .period-score { font-size: 32px; font-weight: bold; color: #fde047; }
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-        }
-        
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-        }
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    /* Player stat - més espai i millor layout */
+    .player-stat {
+        padding: 15px;
+        min-height: auto;
+        gap: 12px;
+    }
+    
+    /* Info del jugador - més espai */
+    .player-info {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .player-name {
+        font-size: 14px;
+        font-weight: bold;
+    }
+    
+    /* Stats del jugador - grid adaptat */
+    .player-stats {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        gap: 8px;
+        width: 100%;
+    }
+    
+    .stat-item {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 8px;
+        border-radius: 6px;
+    }
+    
+    .stat-label {
+        font-size: 9px;
+        margin-bottom: 4px;
+    }
+    
+    .stat-value {
+        font-size: 16px;
+        font-weight: bold;
+    }
+}
         .player-stat {
             background: rgba(0,0,0,0.2);
             padding: 12px;
@@ -1397,6 +1439,17 @@ body.theme-juvenil {
         max-width: 65px !important;
     }
 }
+@media (max-width: 768px) {
+    /* Reduir font de la taula al mòbil */
+    #singleMatchStatsTable {
+        font-size: 10px;
+    }
+    
+    #singleMatchStatsTable th,
+    #singleMatchStatsTable td {
+        padding: 6px 4px;
+    }
+}
     </style>
  <script async src="https://www.googletagmanager.com/gtag/js?id=G-H8JDTNNK0Z"></script>
 <script>
@@ -2143,21 +2196,21 @@ body.theme-juvenil {
     </div>
 	
                     
-    <div class="card">
-    <h2 class="section-title">📊 Estadísticas Completas del Partido</h2>
-    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+ <div style="margin: 0 -20px 20px -20px;">
+    <h2 class="section-title" style="padding: 0 20px; margin-bottom: 10px;">📊 Estadísticas Completas del Partido</h2>
+    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0 20px;">
         <table class="comparison-table" id="singleMatchStatsTable"></table>
     </div>
-    <div style="margin-top: 20px; padding: 15px; background: rgba(34, 211, 238, 0.1); border-radius: 8px; border-left: 4px solid #22d3ee;">
-    <h3 style="color: #22d3ee; margin-bottom: 10px; font-size: 14px;">⭐ Criteris de Valoració MVP</h3>
-    <div style="font-size: 12px; color: #bae6fd; line-height: 1.8;">
-        <strong style="color: #22c55e;">Accions Positives:</strong><br>
-        • Gol normal/contraatac/H+/boya: +2 | Gol penalty: +1<br>
-        • Assistència: +1 | Robatori: +1 | Blocatge: +1 | Parada: +1 | Parada penal: +2 | Falta rebuda: +1<br><br>
-        <strong style="color: #ef4444;">Accions Negatives:</strong><br>
-        • Exclusió (normal o penalty): -1 | Penalty fallat: -2 | Pèrdua: -0.5 | Tir fallat: -0.5 | Infraccions 2m: -0.5 | Contrafalta: -0.75 | Gol rebut (porters): -0.5
+    <div style="margin: 20px 20px 0 20px; padding: 15px; background: rgba(34, 211, 238, 0.1); border-radius: 8px; border-left: 4px solid #22d3ee;">
+        <h3 style="color: #22d3ee; margin-bottom: 10px; font-size: 14px;">⭐ Criteris de Valoració MVP</h3>
+        <div style="font-size: 12px; color: #bae6fd; line-height: 1.8;">
+            <strong style="color: #22c55e;">Accions Positives:</strong><br>
+            • Gol normal/contraatac/H+/boya: +2 | Gol penalty: +1<br>
+            • Assistència: +1 | Robatori: +1 | Blocatge: +1 | Parada: +1 | Parada penal: +2 | Falta rebuda: +1<br><br>
+            <strong style="color: #ef4444;">Accions Negatives:</strong><br>
+            • Exclusió (normal o penalty): -1 | Penalty fallat: -2 | Pèrdua: -0.5 | Tir fallat: -0.5 | Infraccions 2m: -0.5 | Contrafalta: -0.75 | Gol rebut (porters): -0.5
+        </div>
     </div>
-</div>
 </div>
 
                 

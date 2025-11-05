@@ -2423,7 +2423,7 @@ body.theme-juvenil {
         let currentMatch = null;
 		let matchesWithTime = []; 
         window.addEventListener('DOMContentLoaded', async () => {
-            await loadAllMatches();
+        await loadAllMatches(localStorage.getItem('selectedTeam') || 'juvenil');
         });
 
   async function loadAllMatches(team = 'juvenil') {

@@ -13108,13 +13108,13 @@ function loadRankingPill() {
         return;
     }
     
-    const top5 = actawpData.ranking.slice(0, 5);
+    const top8 = actawpData.ranking.slice(0, 8);
     
-    console.log('✅ Classificació top 5:', top5);
+    console.log('✅ Classificació top 8:', top8);
     
     let html = '<div style="display: flex; flex-direction: column; gap: 6px;">';
     
-    top5.forEach(team => {
+    top8.forEach(team => {
     const isOurTeam = team.equip.toUpperCase().includes('TERRASSA');
     const bgColor = isOurTeam ? 'rgba(59, 130, 246, 0.1)' : 'transparent';
     const borderLeft = isOurTeam ? '3px solid #3b82f6' : '3px solid transparent';

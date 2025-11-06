@@ -1513,12 +1513,16 @@ body.theme-juvenil {
 </script>
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
+https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js</script>
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "96af4d1a-fcab-412e-aadb-ed44fadd1b4b",
       safari_web_id: "web.onesignal.auto.468a09a1-a4c0-43e5-8472-22975b523798",
+      webPush: {
+        notificationIcon: "https://joseprico.github.io/CNT/cnt-stats-192.png"
+      },
       notifyButton: {
         enable: true,
         size: 'medium',
@@ -1542,6 +1546,7 @@ body.theme-juvenil {
     });
   });
 </script>
+
 
 </head>
 <body>

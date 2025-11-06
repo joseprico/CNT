@@ -13835,13 +13835,16 @@ function updateNotificationButton(isSubscribed) {
   }
 }
 
+
 function checkNotificationStatus() {
   if (typeof OneSignalDeferred === 'undefined') return;
 
-  OneSignalDeferred.push(function(OneSignal) {
-    OneSignal.User.PushSubscription.optedIn().then(updateNotificationButton);
+  OneSignalDeferred.push(async function(OneSignal) {
+    const isPushEnabled = await OneSignal.isPushNotificationsEnabled();
+    updateNotificationButton(isPushEnabled);
   });
 }
+
 
 function subscribeToNotifications() {
   if (typeof OneSignalDeferred === 'undefined') {
@@ -13849,13 +13852,14 @@ function subscribeToNotifications() {
     return;
   }
 
-  OneSignalDeferred.push(function(OneSignal) {
-    OneSignal.Slidedown.promptPush().then(() => {
-      // Esperar uns segons abans de comprovar l'estat
-      setTimeout(() => {
-        OneSignal.User.PushSubscription.optedIn().then(updateNotificationButton);
-      }, 1000);
-    });
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.showSlidedownPrompt();
+
+    // Esperem una mica per assegurar que la subscripció s'ha completat
+    setTimeout(async () => {
+      const isPushEnabled = await OneSignal.isPushNotificationsEnabled();
+      updateNotificationButton(isPushEnabled);
+    }, 1500);
   });
 }
 

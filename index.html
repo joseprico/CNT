@@ -1512,6 +1512,7 @@ body.theme-juvenil {
   gtag('config', 'G-H8JDTNNK0Z');
 </script>
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
@@ -1520,16 +1521,30 @@ body.theme-juvenil {
       safari_web_id: "web.onesignal.auto.468a09a1-a4c0-43e5-8472-22975b523798",
       notifyButton: {
         enable: true,
-      },
+        size: 'medium',
+        theme: 'default',
+        position: 'bottom-right',
+        text: {
+          'tip.state.unsubscribed': 'Activar notificacions',
+          'tip.state.subscribed': 'Notificacions activades',
+          'tip.state.blocked': 'Notificacions bloquejades',
+          'message.prenotify': 'Fes clic per activar notificacions',
+          'message.action.subscribed': "T'has subscrit a les notificacions! 🎉",
+          'message.action.resubscribed': "Subscripció reactivada!",
+          'message.action.unsubscribed': "Has desactivat les notificacions.",
+          'dialog.main.title': 'Gestiona les notificacions',
+          'dialog.main.button.subscribe': 'Activar',
+          'dialog.main.button.unsubscribe': 'Desactivar',
+          'dialog.blocked.title': 'Notificacions bloquejades',
+          'dialog.blocked.message': 'Habilita les notificacions des de la configuració del navegador.'
+        }
+      }
     });
   });
 </script>
+
 </head>
 <body>
-<button onclick="subscribeToNotifications()" id="notificationBtn" class="notification-toggle">
-  <span id="notificationIcon">🔔</span>
-  <span id="notificationText">Activar notificacions</span>
-</button>
 
 <!-- HTML del botó -->
 <button id="installButton" class="install-button" style="display: none;">
@@ -13813,66 +13828,13 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
 </script>
   <script>
     // 🔒 Bloqueo de clic derecho y atajos
- /*   document.addEventListener("contextmenu", event => event.preventDefault());
+    document.addEventListener("contextmenu", event => event.preventDefault());
     document.addEventListener("keydown", event => {
       if ((event.ctrlKey && ["s", "u"].includes(event.key.toLowerCase())) ||
           event.key === "F12") {
         event.preventDefault();
       }
-    });*/
+    });
     </script>
-<<script>
-
-
-function updateNotificationButton(isSubscribed) {
-  const btn = document.getElementById('notificationBtn');
-  const text = document.getElementById('notificationText');
-
-  if (!btn || !text) return;
-
-  if (isSubscribed) {
-    btn.classList.add('subscribed');
-    text.textContent = 'Notificacions activades';
-  } else {
-    btn.classList.remove('subscribed');
-    text.textContent = 'Activar notificacions';
-  }
-}
-
-
-
-
-function checkNotificationStatus() {
-  if (typeof OneSignalDeferred === 'undefined') return;
-
-  OneSignalDeferred.push(async function(OneSignal) {
-    const isEnabled = await OneSignal.isPushNotificationsEnabled();
-    updateNotificationButton(isEnabled);
-  });
-}
-
-
-
-function subscribeToNotifications() {
-  if (typeof OneSignalDeferred === 'undefined') {
-    alert('OneSignal no està carregat correctament');
-    return;
-  }
-
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.showSlidedownPrompt();
-
-    // Esperem una mica per assegurar que la subscripció s'ha completat
-    setTimeout(async () => {
-      const isPushEnabled = await OneSignal.isPushNotificationsEnabled();
-      updateNotificationButton(isPushEnabled);
-    }, 1500);
-  });
-}
-
-// Comprovar estat al carregar la pàgina
-document.addEventListener('DOMContentLoaded', checkNotificationStatus);
-
-</script>
 </body>
 </html>

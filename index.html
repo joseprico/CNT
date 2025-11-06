@@ -1536,10 +1536,6 @@ body.theme-juvenil {
     📱 Instal·lar App
 </button>
 
-<button onclick="alert('🔔 Aquesta seria una notificació de prova!')">
-  Prova de notificació
-</button>
-
 <!-- Missatge d'app ja instal·lada -->
 <div id="alreadyInstalled" class="already-installed" style="display: none;">
     <div class="installed-card">
@@ -13827,9 +13823,12 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
     </script>
 <<script>
 
+
 function updateNotificationButton(isSubscribed) {
   const btn = document.getElementById('notificationBtn');
   const text = document.getElementById('notificationText');
+
+  if (!btn || !text) return;
 
   if (isSubscribed) {
     btn.classList.add('subscribed');
@@ -13841,14 +13840,17 @@ function updateNotificationButton(isSubscribed) {
 }
 
 
+
+
 function checkNotificationStatus() {
   if (typeof OneSignalDeferred === 'undefined') return;
 
   OneSignalDeferred.push(async function(OneSignal) {
-    const isPushEnabled = await OneSignal.isPushNotificationsEnabled();
-    updateNotificationButton(isPushEnabled);
+    const isEnabled = await OneSignal.isPushNotificationsEnabled();
+    updateNotificationButton(isEnabled);
   });
 }
+
 
 
 function subscribeToNotifications() {

@@ -13821,27 +13821,47 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
     });*/
     </script>
 <<script>
-function subscribeToNotifications() {
+
+function updateNotificationButton(isSubscribed) {
   const btn = document.getElementById('notificationBtn');
   const text = document.getElementById('notificationText');
-  
+
+  if (isSubscribed) {
+    btn.classList.add('subscribed');
+    text.textContent = 'Notificacions activades';
+  } else {
+    btn.classList.remove('subscribed');
+    text.textContent = 'Activar notificacions';
+  }
+}
+
+function checkNotificationStatus() {
+  if (typeof OneSignalDeferred === 'undefined') return;
+
+  OneSignalDeferred.push(function(OneSignal) {
+    OneSignal.User.PushSubscription.optedIn().then(updateNotificationButton);
+  });
+}
+
+function subscribeToNotifications() {
   if (typeof OneSignalDeferred === 'undefined') {
     alert('OneSignal no està carregat correctament');
     return;
   }
-  
+
   OneSignalDeferred.push(function(OneSignal) {
     OneSignal.Slidedown.promptPush().then(() => {
-      // Comprovar si està subscrit
-      OneSignal.User.PushSubscription.optedIn().then(isSubscribed => {
-        if (isSubscribed) {
-          btn.classList.add('subscribed');
-          text.textContent = 'Notificacions activades';
-        }
-      });
+      // Esperar uns segons abans de comprovar l'estat
+      setTimeout(() => {
+        OneSignal.User.PushSubscription.optedIn().then(updateNotificationButton);
+      }, 1000);
     });
   });
 }
+
+// Comprovar estat al carregar la pàgina
+document.addEventListener('DOMContentLoaded', checkNotificationStatus);
+
 </script>
 </body>
 </html>

@@ -1463,6 +1463,45 @@ body.theme-juvenil {
         padding: 6px 4px;
     }
 }
+.notification-toggle {
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.3);
+}
+
+.notification-toggle:hover {
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.5);
+}
+
+.notification-toggle.subscribed {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.notification-toggle.subscribed #notificationIcon::after {
+  content: '✓';
+  position: absolute;
+  font-size: 10px;
+  background: white;
+  color: #22c55e;
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 12px;
+  margin-top: -8px;
+}
     </style>
  <script async src="https://www.googletagmanager.com/gtag/js?id=G-H8JDTNNK0Z"></script>
 <script>
@@ -1472,8 +1511,25 @@ body.theme-juvenil {
 
   gtag('config', 'G-H8JDTNNK0Z');
 </script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "96af4d1a-fcab-412e-aadb-ed44fadd1b4b",
+      safari_web_id: "web.onesignal.auto.468a09a1-a4c0-43e5-8472-22975b523798",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script>
 </head>
 <body>
+<button onclick="subscribeToNotifications()" id="notificationBtn" class="notification-toggle">
+  <span id="notificationIcon">🔔</span>
+  <span id="notificationText">Activar notificacions</span>
+</button>
 <!-- HTML del botó -->
 <button id="installButton" class="install-button" style="display: none;">
     📱 Instal·lar App
@@ -13254,33 +13310,78 @@ function loadTeamSpirit() {
         biggestWin
     });
     
-    // Frases motivadoras segons les estadístiques
-    const motivationalPhrases = [
-        "L'equip és primer, la victòria és de tots! 💙",
-        "Junts som més forts! 🤝",
-        "Un per tots, tots per un! ⚡",
-        "Treballem units, guanyem junts! 🔥",
-        "La força està en l'equip! 💪",
-        "Cada gol és un triomf col·lectiu! ⚽",
-        "Units cap a la victòria! 🏆"
-    ];
-    
-    // Frases especials segons situació
-    let phrase = '';
-    if (currentStreak >= 5) {
-        phrase = `🔥 ${currentStreak} victòries seguides! IMPARABLES!`;
-    } else if (currentStreak >= 3) {
-        phrase = `🔥 ${currentStreak} victòries consecutives! Seguim així!`;
-    } else if (winRate >= 80) {
-        phrase = "Temporada espectacular! Continuem forts! 🌟";
-    } else if (winRate >= 60) {
-        phrase = "Bon ritme d'equip! A per més victòries! 💪";
-    } else if (goalDifference > 20) {
-        phrase = "Atac imparable! L'equip marca la diferència! ⚡";
-    } else {
-        // Frase aleatòria motivadora
-        phrase = motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
-    }
+  
+
+// Frases motivadoras segons les estadístiques
+const motivationalPhrases = [
+    "L'equip és primer, la victòria és de tots! 💙",
+    "Junts som més forts! 🤝",
+    "Un per tots, tots per un! ⚡",
+    "Treballem units, guanyem junts! 🔥",
+    "La força està en l'equip! 💪",
+    "Cada gol és un triomf col·lectiu! ⚽",
+    "Units cap a la victòria! 🏆",
+    "Mai ens rendim, sempre endavant! 🚀",
+    "L'esforç d'avui és l'èxit de demà! 🌟",
+    "Amb coratge i passió, tot és possible! ❤️‍🔥",
+    "Lluitar fins al final és el nostre estil! 🛡️",
+    "L'equip no es construeix en un dia, però cada dia compta! 📆"
+];
+
+// Frases especials segons situació
+let phrase = '';
+const isStartOfSeason = totalMatches <= 3;
+const isMidSeason = totalMatches > 3 && totalMatches <= 10;
+const isEndOfSeason = totalMatches > 10;
+const lastMatch = allMatches[0];
+const isLastHome = lastMatch?.location === 'home';
+const isLastAway = lastMatch?.location === 'away';
+const strongRivals = ['CN Atlètic-Barceloneta', 'CN Sabadell', 'CN Mataró']; // Exemples
+
+if (currentStreak >= 7) {
+    phrase = `🔥 ${currentStreak} victòries seguides! SOM UNA MÀQUINA!`;
+} else if (currentStreak >= 5) {
+    phrase = `🔥 ${currentStreak} victòries seguides! IMPARABLES!`;
+} else if (currentStreak >= 3) {
+    phrase = `💥 ${currentStreak} victòries consecutives! Seguim així!`;
+} else if (losses >= 3 && wins === 0) {
+    phrase = "Moments difícils, però l'equip no es rendeix mai! 💪";
+} else if (draws >= 2 && wins === 0) {
+    phrase = "Empats seguits... ens falta molt poc per tornar a guanyar! 🤏";
+} else if (winRate >= 85) {
+    phrase = "Temporada de somni! Continuem amb aquesta energia! 🌟";
+} else if (winRate >= 70) {
+    phrase = "Gran rendiment! L'equip està en forma! 🏋️‍♂️";
+} else if (winRate >= 60) {
+    phrase = "Bon ritme d'equip! A per més victòries! 💪";
+} else if (goalDifference >= 30) {
+    phrase = "Atac letal! Estem fent història! ⚡";
+} else if (goalDifference >= 15) {
+    phrase = "Gran diferència de gols! Seguim marcant! ⚽";
+} else if (goalDifference < 0 && losses > wins) {
+    phrase = "Toca aixecar el cap i tornar a lluitar! 🔁";
+} else if (avgGoalsAgainst > 12) {
+    phrase = "Ens estan marcant massa... toca reforçar la defensa! 🛡️";
+} else if (wins === 0 && totalMatches >= 3) {
+    phrase = "Encara no hem guanyat, però cada partit és una oportunitat nova! 🔄";
+} else if (isLastHome && winRate >= 60) {
+    phrase = "🏠 A casa som forts! Gràcies afició! 💙";
+} else if (isLastAway && awayWinRate >= 60) {
+    phrase = "✈️ Guanyar fora de casa té molt mèrit! Seguim! 💪";
+} else if (isStartOfSeason) {
+    phrase = "Comencem amb força! Aquesta temporada promet! 🚀";
+} else if (isMidSeason) {
+    phrase = "Estem a la meitat del camí, cada punt compta! 🧭";
+} else if (isEndOfSeason && winRate >= 60) {
+    phrase = "Últims partits! Donem-ho tot fins al final! 🏁";
+} else if (strongRivals.includes(lastMatch?.rivalTeam)) {
+    phrase = `Gran partit contra ${lastMatch.rivalTeam}! 💥 Lluita de gegants!`;
+} else {
+    // Frase aleatòria motivadora
+    phrase = motivationalPhrases[Math.floor(Math.random() * motivationalPhrases.length)];
+}
+
+
     
     // HTML amb estadístiques principals
     let html = `
@@ -13711,13 +13812,36 @@ if (window.matchMedia('(display-mode: standalone)').matches) {
 </script>
   <script>
     // 🔒 Bloqueo de clic derecho y atajos
-    document.addEventListener("contextmenu", event => event.preventDefault());
+ /*   document.addEventListener("contextmenu", event => event.preventDefault());
     document.addEventListener("keydown", event => {
       if ((event.ctrlKey && ["s", "u"].includes(event.key.toLowerCase())) ||
           event.key === "F12") {
         event.preventDefault();
       }
-    });
+    });*/
     </script>
+<<script>
+function subscribeToNotifications() {
+  const btn = document.getElementById('notificationBtn');
+  const text = document.getElementById('notificationText');
+  
+  if (typeof OneSignalDeferred === 'undefined') {
+    alert('OneSignal no està carregat correctament');
+    return;
+  }
+  
+  OneSignalDeferred.push(function(OneSignal) {
+    OneSignal.Slidedown.promptPush().then(() => {
+      // Comprovar si està subscrit
+      OneSignal.User.PushSubscription.optedIn().then(isSubscribed => {
+        if (isSubscribed) {
+          btn.classList.add('subscribed');
+          text.textContent = 'Notificacions activades';
+        }
+      });
+    });
+  });
+}
+</script>
 </body>
 </html>
